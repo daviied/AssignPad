@@ -118,8 +118,11 @@ async def login(body: Login, request: Request, response: Response):
     if not hmac.compare_digest(body.password, PASSWORD):
         _fails[ip].append(time.time())
         raise HTTPException(401, "Wrong password")
+    # "auto": Secure cookie on HTTPS (nginx sends X-Forwarded-Proto), plain cookie on LAN http.
+    mode = os.environ.get("COOKIE_SECURE", "auto")
+    secure = request.url.scheme == "https" if mode == "auto" else mode == "1"
     response.set_cookie("ap_session", SESSION, max_age=90 * 86400, httponly=True, samesite="strict",
-                        secure=os.environ.get("COOKIE_SECURE", "1") == "1")
+                        secure=secure)
     return {"ok": True}
 
 
@@ -132,7 +135,18 @@ async def logout(response: Response):
 @app.get("/api/status")
 async def status():
     ok = await wa.check()
-    return {"loggedIn": ok, "lastCheck": wa.last_check, "passwordLogin": bool(os.environ.get("CENGAGE_EMAIL"))}
+    return {"loggedIn": ok, "lastCheck": wa.last_check, "error": "" if ok else wa.last_error,
+            "passwordLogin": bool(os.environ.get("CENGAGE_EMAIL") and os.environ.get("CENGAGE_PASSWORD")),
+            "hasScreenshot": (DATA / "login-error.png").exists()}
+
+
+@app.get("/api/login-error.png")
+async def login_error_png():
+    """Screenshot of the last failed Cengage login, for debugging."""
+    f = DATA / "login-error.png"
+    if not f.exists():
+        raise HTTPException(404)
+    return FileResponse(f, headers={"Cache-Control": "no-store"})
 
 
 class Session(BaseModel):
@@ -149,8 +163,12 @@ async def session_preflight():
 @app.post("/api/session")
 async def set_session(body: Session):
     """The browser extension sends your WebAssign cookies here."""
-    ok = await wa.set_cookies(body.cookies)
-    return {"loggedIn": ok}
+    try:
+        ok = await wa.set_cookies(body.cookies)
+    except Exception as e:
+        logging.exception("set_cookies failed")
+        raise HTTPException(400, f"Could not use the cookies: {e}")
+    return {"loggedIn": ok, "error": "" if ok else wa.last_error, "count": len(body.cookies)}
 
 
 class Creds(BaseModel):
@@ -160,12 +178,14 @@ class Creds(BaseModel):
 
 @app.post("/api/wa-login")
 async def wa_login(body: Creds):
-    return {"loggedIn": await wa.login(body.email, body.password)}
+    ok = await wa.login(body.email, body.password)
+    return {"loggedIn": ok, "error": "" if ok else wa.last_error}
 
 
 def need_login():
     if not wa.logged_in:
-        raise HTTPException(409, "WebAssign session expired. Send a new session from the browser extension.")
+        raise HTTPException(409, "WebAssign session expired. " + (wa.last_error or
+                            "Send a new session from the browser extension."))
 
 
 @app.get("/api/assignments")

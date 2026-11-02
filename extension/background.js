@@ -21,12 +21,17 @@ async function push() {
     });
     const data = await r.json().catch(() => ({}));
     const res = r.ok
-      ? { ok: !!data.loggedIn, msg: data.loggedIn ? 'Session sent. Server is logged in.' : 'Sent, but the server is not logged in. Open WebAssign and log in.' }
-      : { ok: false, msg: `Server error ${r.status}` };
+      ? { ok: !!data.loggedIn, msg: data.loggedIn
+          ? `Session sent (${data.count} cookies). Server is logged in.`
+          : `Sent ${data.count} cookies, but the server is not logged in. ${data.error || ''}` }
+      : { ok: false, msg: r.status === 401 ? 'Wrong AssignPad password.'
+          : `Server error ${r.status}: ${data.detail || data.error || r.statusText}` };
     await chrome.storage.local.set({ last: { ...res, at: Date.now() } });
     return res;
   } catch (e) {
-    return { ok: false, msg: 'Cannot reach server: ' + e.message };
+    const res = { ok: false, msg: 'Cannot reach server: ' + e.message };
+    await chrome.storage.local.set({ last: { ...res, at: Date.now() } });
+    return res;
   }
 }
 

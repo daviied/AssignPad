@@ -46,6 +46,12 @@ button.btn { font: inherit; padding: 8px 16px; border-radius: 8px; border: 1px s
 button.btn.primary { background: var(--accent); border-color: var(--accent); color: #fff; }
 button.btn:disabled { opacity: .5; cursor: default; }
 a.btn { display: inline-flex; align-items: center; text-decoration: none; }
+.banner { max-width: 900px; margin: 12px auto 0; padding: 12px 16px; border: 1px solid var(--bad);
+  border-radius: 10px; background: var(--card); display: grid; gap: 8px; width: calc(100% - 32px); }
+.banner[hidden] { display: none; }
+.banner small { color: var(--muted); }
+.banner-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+.banner-actions:empty { display: none; }
 .empty, .note { color: var(--muted); padding: 24px 0; text-align: center; }
 .login { max-width: 360px; margin: 10vh auto; display: grid; gap: 12px; }
 .login input { font: inherit; padding: 10px 12px; border-radius: 8px; border: 1px solid var(--line);

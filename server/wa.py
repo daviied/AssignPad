@@ -45,6 +45,8 @@ class WebAssign:
         self.pw = self.browser = self.ctx = None
         self.logged_in = False
         self.last_check = 0.0
+        self.last_login_try = 0.0
+        self.last_error = ""
 
     # ---------- browser / session ----------
     async def start(self):
@@ -92,39 +94,64 @@ class WebAssign:
         if not force and time.time() - self.last_check < 120:
             return self.logged_in
         try:
+            # The home page is built by JavaScript, so check where we land, not the text.
+            # A lost session redirects to account.cengage.com/logout.
             r = await self.ctx.request.get(HOME, max_redirects=10)
-            self.logged_in = r.ok and "login" not in r.url.lower() and "My Assignments" in await r.text()
+            u = urlparse(r.url)
+            self.logged_in = r.ok and (u.hostname or "").endswith("webassign.net") and "student.pl" in u.path
+            if not self.logged_in:
+                self.last_error = f"WebAssign sent the server to {u.hostname}{u.path}: session not valid."
         except Exception as e:  # network error
             log.warning("session check failed: %s", e)
             self.logged_in = False
+            self.last_error = f"Cannot reach WebAssign: {e}"
         self.last_check = time.time()
-        if not self.logged_in and os.environ.get("CENGAGE_EMAIL") and not force:
+        if (not self.logged_in and os.environ.get("CENGAGE_EMAIL") and not force
+                and time.time() - self.last_login_try > 300):
             await self.login()
         return self.logged_in
 
     async def login(self, email=None, password=None):
-        """Log in with a Cengage email + password. Fallback when the extension is not used."""
+        """Log in with a Cengage email + password (Okta form). Fallback when the extension is not used."""
         email = email or os.environ.get("CENGAGE_EMAIL")
         password = password or os.environ.get("CENGAGE_PASSWORD")
         if not (email and password):
+            self.last_error = "CENGAGE_EMAIL and CENGAGE_PASSWORD are not set on the server."
             return False
+        self.last_login_try = time.time()
         async with self.lock:
             page = await self.ctx.new_page()
+            step = "open login page"
             try:
+                # login.pl starts a SAML login that returns to WebAssign. student.pl does not.
                 await page.goto(BASE + "/v4cgi/login.pl", wait_until="domcontentloaded")
-                await page.wait_for_selector('input[type="email"], input[name="email"], input[name="username"]',
-                                             timeout=20000)
-                await page.fill('input[type="email"], input[name="email"], input[name="username"]', email)
-                pw = page.locator('input[type="password"]')
+                user = page.locator('input[name="username"], input[type="email"]').first
+                await user.wait_for(timeout=30000)
+                step = "enter email"
+                await user.fill(email)
+                pw = page.locator('input[type="password"]').first
                 if not await pw.is_visible():
-                    await page.keyboard.press("Enter")
-                    await pw.wait_for(timeout=20000)
+                    await page.locator('#idp-discovery-submit, input[type="submit"]').first.click()
+                    step = "wait for password field"
+                    await pw.wait_for(timeout=30000)
+                step = "enter password"
                 await pw.fill(password)
-                await page.keyboard.press("Enter")
-                await page.wait_for_url(re.compile(r"webassign\.net/(v4cgi/student|web/)"), timeout=45000)
+                await page.locator('#okta-signin-submit, input[type="submit"]').first.click()
+                step = "wait for WebAssign after sign in"
+                await page.wait_for_url(lambda url: "webassign.net" in url, timeout=60000)
+                await page.wait_for_load_state("domcontentloaded")
                 await self._save_cookies()
+                self.last_error = ""
             except Exception as e:
-                log.warning("login failed: %s", e)
+                text = ""
+                try:
+                    await page.screenshot(path=str(self.data / "login-error.png"))
+                    text = (await page.locator('.okta-form-infobox-error, .o-form-error-container, [role=alert]')
+                            .first.inner_text(timeout=2000)).strip()
+                except Exception:
+                    pass
+                self.last_error = f"Cengage login failed at step '{step}'. {text or type(e).__name__}"
+                log.warning("%s (%s)", self.last_error, e)
             finally:
                 await page.close()
         return await self.check(force=True)

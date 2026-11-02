@@ -21,8 +21,8 @@ async function api(path, opts = {}) {
     credentials: 'same-origin', ...opts,
     headers: { 'content-type': 'application/json', ...(opts.headers || {}) },
   });
-  if (r.status === 401) { showLogin(); throw new Error('Log in first'); }
   const data = await r.json().catch(() => ({}));
+  if (r.status === 401 && path !== '/login') { showLogin(); throw new Error('Log in first'); }
   if (!r.ok) throw new Error(data.detail || data.error || r.statusText);
   return data;
 }
@@ -38,7 +38,26 @@ async function checkSession() {
   try {
     const s = await api('/status');
     $('#session').className = 'dot ' + (s.loggedIn ? 'ok' : 'bad');
-    $('#session').title = s.loggedIn ? 'WebAssign session OK' : 'WebAssign session expired: send a new one from the extension';
+    $('#session').title = s.loggedIn ? 'WebAssign session OK' : 'WebAssign session expired';
+    const b = $('#banner');
+    b.hidden = s.loggedIn;
+    if (s.loggedIn) return;
+    b.innerHTML = `<strong>Not connected to WebAssign.</strong> <span>${esc(s.error)}</span>
+      <div class="banner-actions">
+        ${s.passwordLogin ? '<button class="btn primary" id="walogin">Log in to WebAssign now</button>' : ''}
+        ${s.hasScreenshot ? '<a class="btn" href="/api/login-error.png" target="_blank">Last login screenshot</a>' : ''}
+      </div>
+      <small>${s.passwordLogin ? '' : 'Send your session with the AssignPad Bridge extension, or set CENGAGE_EMAIL and CENGAGE_PASSWORD on the server.'}</small>`;
+    const btn = $('#walogin');
+    if (btn) btn.onclick = async () => {
+      btn.disabled = true; btn.textContent = 'Logging in… (up to 1 min)';
+      try {
+        const r = await api('/wa-login', { method: 'POST', body: '{}' });
+        toast(r.loggedIn ? 'Connected to WebAssign' : r.error, 8000);
+      } catch (e) { toast(e.message, 8000); }
+      await checkSession();
+      if ($('#session').classList.contains('ok')) route(true);
+    };
   } catch {}
 }
 
