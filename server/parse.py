@@ -159,7 +159,13 @@ def parse_assignment(html: str, page_url: str):
     styles = []
     for link in soup.select('link[rel~="stylesheet"]'):
         href = link.get("href", "")
-        if re.search(r"/css/questions/|/pads/|watex|mathquill", href):
+        if re.search(r"/css/questions/|watex", href):
             styles.append(proxy(href, page_url))
+    # Assignment pages load the math layout CSS inside a large bundle (student_screen_min.css).
+    # Load watex.css itself from the same WebAssign version folder.
+    if not any("watex.css" in s for s in styles):
+        m = re.search(r"/(?:out|wastatic|static)/(wacache[0-9a-f]+)/", html)
+        if m:
+            styles.append(proxy(f"/out/{m.group(1)}/css/questions/watex.css", page_url))
     questions = [parse_question(q, page_url) for q in soup.select(".waQBox[id^=question]")]
     return {"name": name, "styles": styles, "questions": questions}

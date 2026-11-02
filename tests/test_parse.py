@@ -41,6 +41,9 @@ def test_watex_structure():
     h = q["html"]
     assert h.count('class="watexfraction"') == 2
     assert h.index("leftparen2.gif") < h.index('data-name="RA_333_0_0_7"') < h.index("rightparen2.gif")
+    # watex.css is added even when the page only links the big CSS bundle.
+    assert a["styles"] == ["/api/proxy?u=https%3A%2F%2Fwww.webassign.net%2Fout%2F"
+                           "wacachea4f8446e5bade082a0ba9b81b4706499%2Fcss%2Fquestions%2Fwatex.css"]
 
 
 def test_no_secrets():

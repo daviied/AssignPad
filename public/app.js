@@ -144,7 +144,8 @@ function qStyles(styles) {
         background: var(--card); color: var(--text); }
       .ap-mark { font-weight: 700; } .ap-mark.correct { color: var(--ok); } .ap-mark.incorrect { color: var(--bad); }
       img { max-width: 100%; height: auto; }
-      img[src*="mCorrect"], img[src*="mIncorrect"] { display: none; }
+      /* The app shows its own ✓/✗ next to each answer box. Hide WebAssign's marks. */
+      .waMark, .padMark, .waMarkWrap, img[src*="mCorrect"], img[src*="mIncorrect"] { display: none !important; }
       table { color: inherit; }
       .questionDetail, .qUtility .preContent { display: none; }
       @media (prefers-color-scheme: dark) { img:not([src*=".svg"]) { filter: invert(.9) hue-rotate(180deg); } }
@@ -304,7 +305,7 @@ async function showAssignment(dep, refresh = true) {
   try {
     const data = await api(`/assignments/${dep}${refresh ? '?refresh=1' : ''}`);
     store.set('asg:' + dep, data);
-    if (location.hash === '#/a/' + dep && JSON.stringify(data.questions) !== JSON.stringify(cached?.questions)) {
+    if (location.hash === '#/a/' + dep && JSON.stringify([data.questions, data.styles]) !== JSON.stringify([cached?.questions, cached?.styles])) {
       // Never rebuild the answer boxes while you work in them.
       const busy = document.activeElement?.closest?.('.card') || Date.now() - lastInput < 120000;
       if (!busy) renderAssignment(data, true);
