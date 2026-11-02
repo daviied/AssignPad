@@ -100,8 +100,10 @@ def parse_question(qbox, page_url):
         parts.append({"name": sel["name"], "kind": "select", "value": opt.get("value") if opt else None,
                       "enabled": not sel.has_attr("disabled"), "mark": _mark_near(sel)})
 
-    # Clean the content HTML.
-    for t in content.select("button, textarea.latex-source, .mathtype-overlay-trigger, iframe, object, embed"):
+    # Clean the content HTML. MathJax output (live page) is removed; its source scripts stay.
+    for t in content.select("button, textarea.latex-source, .mathtype-overlay-trigger, iframe, object, embed, "
+                            ".MathJax_Preview, .MathJax, .MathJax_Display, .MathJax_CHTML, mjx-container, "
+                            ".MJX_Assistive_MathML"):
         t.decompose()
     for t in content.select('input[type="hidden"], input[type="submit"]'):
         t.decompose()

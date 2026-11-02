@@ -157,29 +157,42 @@ class WebAssign:
         return await self.check(force=True)
 
     # ---------- reading ----------
-    async def list_assignments(self):
+    async def list_assignments(self, retry=True):
         async with self.lock:
             page = await self.ctx.new_page()
             try:
                 await page.goto(HOME, wait_until="domcontentloaded")
-                await page.wait_for_selector('a[href*="Assignment-Responses"]', timeout=30000)
-                course = (await page.title()).split(" - ")[0]
-                rows = await self._read_links(page, "current")
-                tab = page.get_by_text(re.compile(r"Past Assignments"))
-                if await tab.count():
-                    await tab.first.click()
-                    try:
-                        await page.wait_for_function(
-                            "n => document.querySelectorAll('a[href*=\"Assignment-Responses\"]').length > n",
-                            arg=len(rows), timeout=15000)
-                    except Exception:
-                        pass
-                    seen = {r["dep"] for r in rows}
-                    rows += [r for r in await self._read_links(page, "past") if r["dep"] not in seen]
-                await self._save_cookies()
-                return {"course": course, "assignments": rows, "synced": time.time()}
+                try:
+                    await page.wait_for_selector('a[href*="Assignment-Responses"]', timeout=30000)
+                except Exception:
+                    if (urlparse(page.url).hostname or "").endswith("webassign.net"):
+                        raise RuntimeError("WebAssign home page did not show assignments.")
+                    self.logged_in = False
+                else:
+                    return await self._list_from(page)
             finally:
                 await page.close()
+        # Session lost: log in with email/password and try once more.
+        if retry and await self.login():
+            return await self.list_assignments(retry=False)
+        raise PermissionError("WebAssign session expired. " + self.last_error)
+
+    async def _list_from(self, page):
+        course = (await page.title()).split(" - ")[0]
+        rows = await self._read_links(page, "current")
+        tab = page.get_by_text(re.compile(r"Past Assignments"))
+        if await tab.count():
+            await tab.first.click()
+            try:
+                await page.wait_for_function(
+                    "n => document.querySelectorAll('a[href*=\"Assignment-Responses\"]').length > n",
+                    arg=len(rows), timeout=15000)
+            except Exception:
+                pass
+            seen = {r["dep"] for r in rows}
+            rows += [r for r in await self._read_links(page, "past") if r["dep"] not in seen]
+        await self._save_cookies()
+        return {"course": course, "assignments": rows, "synced": time.time()}
 
     @staticmethod
     async def _read_links(page, group):
@@ -194,15 +207,58 @@ class WebAssign:
             return {dep, name: lines[0] || a.textContent.trim(), due, score, group};
           }).filter(r => r.dep)""", group)
 
-    async def get_assignment(self, dep: str):
-        r = await self.ctx.request.get(ASG_URL.format(dep=dep))
-        html = await r.text()
-        # A lost session redirects to the Cengage login page.
-        if not (urlparse(r.url).hostname or "").endswith("webassign.net") or 'id="assignment' not in html:
+    async def get_assignment(self, dep: str, retry=True):
+        """Open the assignment in the headless browser, like a person would, and parse it."""
+        url = ASG_URL.format(dep=dep)
+        docs = []  # HTML documents as WebAssign sent them, before page JavaScript changes them
+        async with self.lock:
+            page = await self.ctx.new_page()
+            page.on("response", lambda r: docs.append(r) if r.request.resource_type == "document"
+                    and "Assignment-Responses" in r.url else None)
+            try:
+                await page.goto(url, wait_until="domcontentloaded", timeout=60000)
+                # Wait for the questions, or stop early when WebAssign sends us to the Cengage login.
+                for _ in range(60):
+                    if not (urlparse(page.url).hostname or "").endswith("webassign.net"):
+                        break
+                    try:
+                        if await page.query_selector(".waQBox"):
+                            break
+                    except Exception:  # page is navigating
+                        pass
+                    await page.wait_for_timeout(500)
+                final = page.url
+                html = ""
+                lost = not (urlparse(final).hostname or "").endswith("webassign.net")
+                for r in ([] if lost else reversed(docs)):
+                    if r.status != 200:
+                        continue  # redirects have no body; reading one can hang
+                    try:
+                        html = await asyncio.wait_for(r.text(), 10)
+                        break
+                    except Exception:
+                        continue
+                if not lost and "waQBox" not in html:
+                    try:
+                        html = await page.content()  # page built by JavaScript
+                    except Exception:
+                        pass
+                if not lost and "waQBox" not in html:
+                    await page.screenshot(path=str(self.data / "assignment-error.png"), full_page=True)
+                    title = await page.title()
+                await self._save_cookies()
+            finally:
+                await page.close()
+        if not (urlparse(final).hostname or "").endswith("webassign.net"):
             self.logged_in = False
-            raise PermissionError("WebAssign session expired")
-        data = parse_assignment(html, r.url)
-        data.update(dep=dep, url=ASG_URL.format(dep=dep), synced=time.time())
+            if retry and await self.login():
+                return await self.get_assignment(dep, retry=False)
+            raise PermissionError("WebAssign session expired. " + self.last_error)
+        if "waQBox" not in html:
+            raise RuntimeError(f"No questions found on the WebAssign page ('{title}'). "
+                               "See the screenshot link.")
+        data = parse_assignment(html, final)
+        data.update(dep=dep, url=url, synced=time.time())
         return data
 
     async def proxy(self, url: str):

@@ -267,7 +267,11 @@ async function showAssignment(dep, refresh = true) {
     try { // Server cache first: it is fast. Then refresh from WebAssign.
       cached = await api(`/assignments/${dep}`);
       store.set('asg:' + dep, cached); renderAssignment(cached);
-    } catch (e) { console.error(e); }
+      if (Date.now() / 1000 - cached.synced < 60) return; // just loaded from WebAssign
+    } catch (e) {
+      showLoadError(dep, e.message);
+      return;
+    }
   }
   try {
     const data = await api(`/assignments/${dep}${refresh ? '?refresh=1' : ''}`);
@@ -278,6 +282,17 @@ async function showAssignment(dep, refresh = true) {
       else toast('New data from WebAssign. Press sync to show it.');
     }
   } catch (e) { toast(e.message, 5000); }
+}
+
+function showLoadError(dep, msg) {
+  if (location.hash !== '#/a/' + dep) return;
+  view.innerHTML = `<div class="card"><div class="body">
+      <p><strong>Could not load this assignment.</strong></p><p>${esc(msg)}</p></div>
+    <footer><a class="btn" href="/api/assignment-error.png" target="_blank">Screenshot</a>
+      <a class="btn" href="https://www.webassign.net/web/Student/Assignment-Responses/last?dep=${esc(dep)}" target="_blank" rel="noopener">Open in WebAssign</a>
+      <button class="btn primary" id="retry">Try again</button></footer></div>`;
+  $('#retry').onclick = () => showAssignment(dep, true);
+  checkSession();
 }
 
 // ---------- Routing ----------

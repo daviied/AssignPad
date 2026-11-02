@@ -62,6 +62,8 @@ async def keepalive():
 @asynccontextmanager
 async def lifespan(app):
     await wa.start()
+    # Log in at startup when CENGAGE_EMAIL/CENGAGE_PASSWORD are set. No extension needed.
+    first = asyncio.create_task(wa.check())
     task = asyncio.create_task(keepalive())
     yield
     task.cancel()
@@ -193,9 +195,13 @@ async def assignments(refresh: int = 0):
     cached = read_cache("_list")
     if cached and not refresh:
         return cached
-    await wa.check()
-    need_login()
-    return write_cache("_list", await wa.list_assignments())
+    try:
+        return write_cache("_list", await asyncio.wait_for(wa.list_assignments(), 150))
+    except PermissionError as e:
+        raise HTTPException(409, str(e))
+    except Exception as e:
+        logging.exception("list failed")
+        raise HTTPException(502, f"Could not read the assignment list: {e}")
 
 
 @app.get("/api/assignments/{dep}")
@@ -206,9 +212,21 @@ async def assignment(dep: str, refresh: int = 0):
     if cached and not refresh:
         return cached
     try:
-        return write_cache(dep, await wa.get_assignment(dep))
+        return write_cache(dep, await asyncio.wait_for(wa.get_assignment(dep), 120))
     except PermissionError as e:
         raise HTTPException(409, str(e))
+    except Exception as e:
+        logging.exception("assignment %s failed", dep)
+        raise HTTPException(502, f"Could not load the assignment: {e}")
+
+
+@app.get("/api/assignment-error.png")
+async def assignment_error_png():
+    """Screenshot of the last assignment page that had no questions, for debugging."""
+    f = DATA / "assignment-error.png"
+    if not f.exists():
+        raise HTTPException(404)
+    return FileResponse(f, headers={"Cache-Control": "no-store"})
 
 
 class Submit(BaseModel):
