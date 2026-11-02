@@ -86,6 +86,7 @@ function renderList(data) {
   view.innerHTML = rows.length
     ? sec('Current', rows.filter(a => a.group === 'current')) + sec('Past', rows.filter(a => a.group !== 'current'))
     : '<p class="empty">No assignments yet. Press sync.</p>';
+  view.insertAdjacentHTML('beforeend', `<p class="note">AssignPad ${VERSION}</p>`);
 }
 
 async function showList(refresh = false) {
@@ -100,6 +101,7 @@ async function showList(refresh = false) {
 }
 
 // ---------- Assignment ----------
+const VERSION = 'v12';  // keep equal to SHELL in sw.js
 const draftKey = (dep, name) => `draft:${dep}:${name}`;
 let lastInput = 0;
 const MML = 'http://www.w3.org/1998/Math/MathML';
@@ -133,7 +135,7 @@ function qStyles(styles) {
       /* WebAssign draws fraction bars, roots and borders in black: use the text color (dark mode). */
       .q [class*="watex"] { border-color: currentColor !important; }
       /* WebAssign CSS sets black text on some parts. Use one text color; keep the author's inline colors. */
-      .q, .q *:not([style*="color"]):not(font[color]):not(.ap-mark) { color: inherit !important; }
+      .q *:not([style*="color"]):not(font[color]):not(.ap-mark) { color: inherit !important; }
       .q { color: var(--text) !important; }
       .ap-lock { font-size: 12px; color: var(--muted); }
       math-field { min-width: 140px; font-size: 1.15em; padding: 2px 6px; border-radius: 6px;
@@ -159,6 +161,23 @@ function qStyles(styles) {
     </style>`;
 }
 
+// WebAssign writes black text inline (style="color:black", <font color>). Use the theme text
+// color for black, white and near-gray colors; keep real colors (red, blue hints).
+const colorCtx = document.createElement('canvas').getContext('2d');
+function fixInlineColors(root) {
+  root.querySelectorAll('[style*="color"], font[color]').forEach(el => {
+    const v = el.style.color || el.getAttribute('color');
+    if (!v) return;
+    colorCtx.fillStyle = '#123456'; colorCtx.fillStyle = v;
+    const m = /^#(..)(..)(..)$/.exec(colorCtx.fillStyle);
+    if (!m) return;
+    const [r, g, b] = m.slice(1).map(h => parseInt(h, 16));
+    if (Math.max(r, g, b) - Math.min(r, g, b) < 40) {  // no hue: black, white or gray
+      el.style.color = ''; el.removeAttribute('color');
+    }
+  });
+}
+
 function buildQuestion(asg, q, practice = null) {
   const card = document.createElement('section');
   card.className = practice ? 'card practice' : 'card'; card.id = practice ? 'practice-' + practice.of.box : q.box;
@@ -179,6 +198,7 @@ function buildQuestion(asg, q, practice = null) {
   const host = card.querySelector('.body');
   const root = host.attachShadow({ mode: 'open' });
   root.innerHTML = qStyles(asg.styles || []) + `<div class="q">${q.html}</div>`;
+  fixInlineColors(root);
   root.querySelectorAll('.ap-tex').forEach(el => {
     try { el.innerHTML = convertLatexToMarkup(el.textContent); } catch {}
   });
@@ -404,4 +424,12 @@ $('#sync').onclick = async () => {
 window.addEventListener('hashchange', () => route());
 route();
 checkSession();
-if ('serviceWorker' in navigator) navigator.serviceWorker.register('/sw.js');
+if ('serviceWorker' in navigator) {
+  // A new version activates at once (skipWaiting). Reload one time so the page uses it.
+  const hadSW = !!navigator.serviceWorker.controller;
+  navigator.serviceWorker.addEventListener('controllerchange', () => {
+    if (hadSW && !sessionStorage.getItem('sw-reloaded')) { sessionStorage.setItem('sw-reloaded', '1'); location.reload(); }
+  });
+  navigator.serviceWorker.register('/sw.js');
+  setTimeout(() => sessionStorage.removeItem('sw-reloaded'), 10000);
+}

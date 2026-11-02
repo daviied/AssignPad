@@ -132,6 +132,9 @@ async def auth(request: Request, call_next):
     resp = await call_next(request)
     if p.startswith("/api/session"):
         resp.headers["Access-Control-Allow-Origin"] = "*"
+    if not p.startswith("/api/") and "cache-control" not in resp.headers:
+        # App files: the browser must check for a new version (ETag) before it uses a cached copy.
+        resp.headers["Cache-Control"] = "no-cache"
     return resp
 
 

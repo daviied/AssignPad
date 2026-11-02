@@ -19,7 +19,8 @@ log = logging.getLogger("wa")
 HOME = BASE + "/v4cgi/student.pl"
 ASG_URL = BASE + "/web/Student/Assignment-Responses/last?dep={dep}"
 PRACTICE_URL = BASE + "/v4cgi/react/student/practice.tpl"
-ALLOWED_HOSTS = ("webassign.net", "cengage.com", "cengage.io", "cengage.info")
+# cloudfront.net: WebAssign question images (waplots) are on a CloudFront CDN.
+ALLOWED_HOSTS = ("webassign.net", "cengage.com", "cengage.io", "cengage.info", "cloudfront.net")
 
 
 def host_allowed(url: str) -> bool:
