@@ -101,6 +101,7 @@ async function showList(refresh = false) {
 
 // ---------- Assignment ----------
 const draftKey = (dep, name) => `draft:${dep}:${name}`;
+let lastInput = 0;
 const MML = 'http://www.w3.org/1998/Math/MathML';
 
 function latexToMathml(latex) {
@@ -123,13 +124,15 @@ function qStyles(styles) {
     `<link rel="stylesheet" href="/vendor/mathlive/mathlive-static.css">
     <style>
       :host { display: block; color: var(--text); }
-      .ap-box { display: inline-flex; align-items: center; gap: 4px; vertical-align: middle; margin: 2px 0; }
+      .ap-box { display: inline-flex; align-items: center; gap: 4px; vertical-align: middle; margin: 2px 0; cursor: text; }
+      .ap-lock { font-size: 12px; color: var(--muted); }
       math-field { min-width: 140px; max-width: 100%; font-size: 1.15em; padding: 2px 6px; border-radius: 6px;
         border: 1px solid var(--line); background: var(--card); color: var(--text);
         --caret-color: var(--accent); --selection-background-color: color-mix(in srgb, var(--accent) 25%, transparent); }
       math-field:focus-within { outline: 2px solid var(--accent); outline-offset: 1px; }
-      math-field[readonly] { opacity: .8; }
+      math-field[readonly] { opacity: .7; border-style: dashed; cursor: not-allowed; }
       math-field::part(menu-toggle) { display: none; }
+      math-field::part(container) { cursor: text; }
       input.ap-text { font: inherit; padding: 4px 8px; border-radius: 6px; border: 1px solid var(--line);
         background: var(--card); color: var(--text); }
       .ap-mark { font-weight: 700; } .ap-mark.correct { color: var(--ok); } .ap-mark.incorrect { color: var(--bad); }
@@ -179,8 +182,26 @@ function buildQuestion(asg, q) {
         el.value = saved ?? p.value ?? '';
         el.addEventListener('input', () => store.set(draftKey(asg.dep, p.name), el.value));
       }
-      if (!p.enabled) el.readOnly = true;
+      el.addEventListener('input', () => { lastInput = Date.now(); });
       slot.append(el);
+      if (!p.enabled) {
+        el.readOnly = true;
+        el.title = 'Locked by WebAssign (already correct or no submissions left)';
+        slot.insertAdjacentHTML('beforeend', '<span class="ap-lock">🔒 locked</span>');
+      } else {
+        // MathLive bug: after a click on the empty padding of the field, typed characters
+        // are dropped (arrow keys still work). We handle padding clicks ourselves: focus by
+        // code and put the caret at the end. Clicks on the formula still go to MathLive.
+        slot.addEventListener('pointerdown', e => {
+          const t = e.composedPath()[0];
+          const cls = typeof t.className === 'string' ? t.className : '';
+          if (t === slot || t === el || /\bML__(container|content)\b/.test(cls)) {
+            e.preventDefault(); e.stopPropagation();
+            el.focus();
+            el.executeCommand?.('moveToMathfieldEnd');
+          }
+        }, true);
+      }
       if (p.mark) slot.insertAdjacentHTML('beforeend',
         `<span class="ap-mark ${p.mark}" title="${p.mark}">${p.mark === 'correct' ? '✓' : '✗'}</span>`);
       fields[p.name] = { part: p, el };
@@ -277,8 +298,9 @@ async function showAssignment(dep, refresh = true) {
     const data = await api(`/assignments/${dep}${refresh ? '?refresh=1' : ''}`);
     store.set('asg:' + dep, data);
     if (location.hash === '#/a/' + dep && JSON.stringify(data.questions) !== JSON.stringify(cached?.questions)) {
-      const active = document.activeElement?.closest?.('.card');
-      if (!active) renderAssignment(data, true);
+      // Never rebuild the answer boxes while you work in them.
+      const busy = document.activeElement?.closest?.('.card') || Date.now() - lastInput < 120000;
+      if (!busy) renderAssignment(data, true);
       else toast('New data from WebAssign. Press sync to show it.');
     }
   } catch (e) { toast(e.message, 5000); }
