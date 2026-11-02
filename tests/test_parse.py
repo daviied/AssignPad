@@ -33,6 +33,16 @@ def test_parse_sample():
     assert a["styles"] and a["styles"][0].startswith("/api/proxy")
 
 
+def test_watex_structure():
+    """Real WebAssign layout: fraction tables and paren images around the answer box stay."""
+    a = parse_assignment((ROOT / "tests/fixtures/watex.html").read_text(encoding="utf-8"), URL)
+    q = a["questions"][0]
+    assert [p["name"] for p in q["parts"]] == ["RA_333_0_0_7"]
+    h = q["html"]
+    assert h.count('class="watexfraction"') == 2
+    assert h.index("leftparen2.gif") < h.index('data-name="RA_333_0_0_7"') < h.index("rightparen2.gif")
+
+
 def test_no_secrets():
     s = json.dumps(load())
     assert "SECRET" not in s

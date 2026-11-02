@@ -1,5 +1,5 @@
 // App shell cache-first, API network-only, WebAssign images cache-first.
-const SHELL = 'shell-v6';
+const SHELL = 'shell-v7';
 const IMG = 'img-v1';
 const FILES = ['/', '/index.html', '/app.js', '/mml2tex.js', '/style.css', '/manifest.webmanifest', '/icon.svg',
   '/vendor/mathlive/mathlive.min.mjs', '/vendor/mathlive/mathlive-static.css'];

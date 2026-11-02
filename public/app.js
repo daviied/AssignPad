@@ -124,9 +124,16 @@ function qStyles(styles) {
     `<link rel="stylesheet" href="/vendor/mathlive/mathlive-static.css">
     <style>
       :host { display: block; color: var(--text); }
-      .ap-box { display: inline-flex; align-items: center; gap: 4px; vertical-align: middle; margin: 2px 0; cursor: text; }
+      .ap-box { display: inline-flex; align-items: center; gap: 4px; vertical-align: middle; margin: 2px 0; cursor: text;
+        white-space: normal; }
+      /* Keep "( [answer] )" on one line. A long answer scrolls inside its box. */
+      .watexline:has(.ap-box), .watexinlineblock:has(.ap-box) { white-space: nowrap; }
+      .ap-box math-field { max-width: min(65vw, 560px); }
+      @media (max-width: 600px) { .ap-box math-field { max-width: 42vw; min-width: 110px; } }
+      /* WebAssign draws fraction bars, roots and borders in black: use the text color (dark mode). */
+      .q [class*="watex"] { border-color: currentColor !important; }
       .ap-lock { font-size: 12px; color: var(--muted); }
-      math-field { min-width: 140px; max-width: 100%; font-size: 1.15em; padding: 2px 6px; border-radius: 6px;
+      math-field { min-width: 140px; font-size: 1.15em; padding: 2px 6px; border-radius: 6px;
         border: 1px solid var(--line); background: var(--card); color: var(--text);
         --caret-color: var(--accent); --selection-background-color: color-mix(in srgb, var(--accent) 25%, transparent); }
       math-field:focus-within { outline: 2px solid var(--accent); outline-offset: 1px; }
