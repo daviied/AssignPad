@@ -35,6 +35,16 @@ It syncs with WebAssign: you see your assignments and submit answers from Assign
 The server logs in to WebAssign at startup and again when the session ends. It keeps the session alive every 15 minutes.
 Optional: instead of `CENGAGE_EMAIL`/`CENGAGE_PASSWORD`, load `extension/` (Chrome > `chrome://extensions` > Developer mode > Load unpacked) and click **Save and send session**.
 
+## Extensions
+
+AssignPad uses only WebAssign's **automatic** extension (granted at once). It never sends an extension request to the instructor.
+
+- Assignment page → **Extension**: WebAssign's rule (days, penalty, requests left) and **Request extension**.
+- List page → **Auto extension** + hours: X hours after the due date, AssignPad requests the automatic extension for each assignment under 100%. It checks every 10 minutes.
+- Per assignment: **Auto** Default / On / Off and its own hours.
+- WebAssign gives a request window after the due date (for example 2 days). Set the hours inside that window.
+- Data: `extensions.json` in the data folder (settings and the last result per assignment).
+
 ## Security
 
 - `APP_PASSWORD` is required (8+ characters). The server does not start without it.

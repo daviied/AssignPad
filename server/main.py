@@ -16,6 +16,7 @@ from fastapi.responses import FileResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 
+from extensions import Extensions
 from wa import WebAssign, host_allowed
 
 logging.basicConfig(level=logging.INFO)
@@ -27,6 +28,7 @@ if len(PASSWORD) < 8:
     raise SystemExit("Set APP_PASSWORD (8+ characters). The server will not start without it.")
 DEV = os.environ.get("DEV") == "1"
 wa = WebAssign(DATA)
+ext = Extensions(DATA, wa)
 
 # Session cookie = HMAC of a random server secret. The password is never stored in the cookie.
 _secret_file = DATA / "secret"
@@ -104,7 +106,8 @@ async def lifespan(app):
     await wa.start()
     # Log in at startup when CENGAGE_EMAIL/CENGAGE_PASSWORD are set. No extension needed.
     first = asyncio.create_task(wa.check())
-    tasks = [asyncio.create_task(keepalive()), asyncio.create_task(prefetcher())]
+    tasks = [asyncio.create_task(keepalive()), asyncio.create_task(prefetcher()),
+             asyncio.create_task(ext.loop(lambda refresh: assignments(int(refresh))))]
     yield
     for t in tasks:
         t.cancel()
@@ -262,6 +265,81 @@ async def assignment(dep: str, refresh: int = 0):
     except Exception as e:
         logging.exception("assignment %s failed", dep)
         raise HTTPException(502, f"Could not load the assignment: {e}")
+
+
+class ExtSettings(BaseModel):
+    enabled: bool = False
+    hours: float = 12
+
+
+class ExtOverride(BaseModel):
+    enabled: bool | None = None
+    hours: float | None = None
+    clear: bool = False
+
+
+def ext_view(dep=None):
+    s = ext.state()
+    out = {"auto": s["auto"], "overrides": s["overrides"], "log": s["log"]}
+    if dep:
+        on, hours = ext.rule(s, dep)
+        out.update(dep=dep, enabled=on, hours=hours, override=s["overrides"].get(dep), last=s["log"].get(dep))
+    return out
+
+
+@app.get("/api/extensions")
+async def extensions_get():
+    return ext_view()
+
+
+@app.put("/api/extensions")
+async def extensions_put(body: ExtSettings):
+    ext.set_settings(auto=body.model_dump())
+    return ext_view()
+
+
+@app.get("/api/assignments/{dep}/extension")
+async def extension_get(dep: str):
+    if not dep.isdigit():
+        raise HTTPException(400)
+    out = ext_view(dep)
+    try:
+        out["info"] = await wa.extension_info(dep)
+    except Exception as e:
+        out["info"], out["error"] = None, str(e)
+    return out
+
+
+@app.put("/api/assignments/{dep}/extension")
+async def extension_put(dep: str, body: ExtOverride):
+    if not dep.isdigit():
+        raise HTTPException(400)
+    ext.set_settings(dep=dep, override=None if body.clear else body.model_dump(exclude_none=True, exclude={"clear"}))
+    return ext_view(dep)
+
+
+@app.post("/api/assignments/{dep}/extension")
+async def extension_request(dep: str):
+    """Request WebAssign's automatic extension now."""
+    if not dep.isdigit():
+        raise HTTPException(400)
+    await wa.check()
+    need_login()
+    try:
+        res = await ext.request(dep)
+    except ValueError as e:
+        raise HTTPException(409, str(e))
+    except PermissionError as e:
+        raise HTTPException(409, str(e))
+    except Exception as e:
+        logging.exception("extension %s failed", dep)
+        ext.record(dep, False, str(e)[:300], False)
+        raise HTTPException(502, str(e))
+    try:
+        write_cache("_list", await asyncio.wait_for(wa.list_assignments(), 150))  # new due date
+    except Exception as e:
+        logging.warning("list refresh after extension: %s", e)
+    return {**ext_view(dep), **res}
 
 
 @app.get("/api/assignment-error.png")

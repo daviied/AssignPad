@@ -19,6 +19,8 @@ log = logging.getLogger("wa")
 HOME = BASE + "/v4cgi/student.pl"
 ASG_URL = BASE + "/web/Student/Assignment-Responses/last?dep={dep}"
 PRACTICE_URL = BASE + "/v4cgi/react/student/practice.tpl"
+EXT_INFO_URL = BASE + "/web/Rest/ExtensionRequest/extension_request?deploymentId={dep}"
+EXT_AUTO_URL = "/web/Rest/ExtensionRequest/automated_request?deploymentId={dep}"
 # cloudfront.net: WebAssign question images (waplots) are on a CloudFront CDN.
 ALLOWED_HOSTS = ("webassign.net", "cengage.com", "cengage.io", "cengage.info", "cloudfront.net")
 
@@ -269,6 +271,48 @@ class WebAssign:
     async def proxy(self, url: str):
         r = await self.ctx.request.get(url)
         return await r.body(), r.headers.get("content-type", "application/octet-stream"), r.status
+
+    # ---------- extensions ----------
+    async def extension_info(self, dep: str):
+        """WebAssign's extension settings for one assignment: type (automated/manual/both), days, requests left."""
+        r = await self.ctx.request.get(EXT_INFO_URL.format(dep=dep), headers={"Accept": "application/json"})
+        if not r.ok:
+            raise RuntimeError(f"WebAssign extension info: HTTP {r.status}")
+        try:
+            d = (await r.json()).get("data") or {}
+        except Exception:
+            raise PermissionError("WebAssign session expired.") from None
+        return d.get("extension_settings") or {}
+
+    async def request_extension(self, dep: str):
+        """Ask WebAssign for the automatic extension, the way the Request Extension dialog does."""
+        async with self.lock:
+            page = await self.ctx.new_page()
+            try:
+                await page.goto(ASG_URL.format(dep=dep), wait_until="domcontentloaded", timeout=60000)
+                if not (urlparse(page.url).hostname or "").endswith("webassign.net"):
+                    self.logged_in = False
+                    raise PermissionError("WebAssign session expired. " + self.last_error)
+                await page.wait_for_selector('meta[name="X-CSRF-TOKEN"]', state="attached", timeout=30000)
+                res = await page.evaluate("""async url => {
+                    const token = document.querySelector('meta[name="X-CSRF-TOKEN"]').getAttribute('content') || '';
+                    const dep = new URL(url, location.href).searchParams.get('deploymentId');
+                    const r = await fetch(url, {method: 'POST', credentials: 'include',
+                      headers: {'Content-Type': 'application/json', 'Accept': 'application/json', 'X-CSRF-TOKEN': token},
+                      body: JSON.stringify({deploymentId: dep})});
+                    let body = null;
+                    try { body = await r.json(); } catch (e) {}
+                    return {status: r.status, body};
+                  }""", EXT_AUTO_URL.format(dep=dep))
+                await self._save_cookies()
+            finally:
+                await page.close()
+        body = res.get("body") or {}
+        if res["status"] != 200 or str(body.get("status", "200")) != "200":
+            msg = (body.get("message") or body.get("validation") or "") if isinstance(body, dict) else ""
+            raise RuntimeError(f"WebAssign refused the extension (HTTP {res['status']}) {msg}".strip())
+        content = ((body.get("result") or {}).get("content")) if isinstance(body, dict) else None
+        return content if isinstance(content, dict) else {"result": content}
 
     # ---------- practice ----------
     def _practice_result(self, pid, html, url):

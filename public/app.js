@@ -86,7 +86,82 @@ function renderList(data) {
   view.innerHTML = rows.length
     ? sec('Current', rows.filter(a => a.group === 'current')) + sec('Past', rows.filter(a => a.group !== 'current'))
     : '<p class="empty">No assignments yet. Press sync.</p>';
+  view.insertAdjacentHTML('afterbegin', '<div class="card ext" id="ext-auto"></div>');
   view.insertAdjacentHTML('beforeend', `<p class="note">AssignPad ${VERSION}</p>`);
+  renderAutoExt(data);
+}
+
+// ---------- Extensions ----------
+// Auto extension: X hours after the due date, request WebAssign's automatic extension
+// for assignments that are not 100%. One default, with an override per assignment.
+async function renderAutoExt(list) {
+  const box = $('#ext-auto');
+  if (!box) return;
+  let s;
+  try { s = await api('/extensions'); } catch { box.remove(); return; }
+  const names = Object.fromEntries((list.assignments || []).map(a => [a.dep, a.name]));
+  const log = Object.entries(s.log).sort((a, b) => b[1].at - a[1].at).slice(0, 3);
+  box.innerHTML = `<div class="body ext-row">
+      <label><input type="checkbox" id="ext-on" ${s.auto.enabled ? 'checked' : ''}> Auto extension</label>
+      <label><input type="number" id="ext-hours" min="0" max="240" step="1" value="${s.auto.hours}"> hours after due</label>
+      <span class="muted small">Only for assignments under 100%, and only WebAssign's automatic extension.</span>
+      ${log.map(([dep, l]) => `<span class="small ${l.ok ? 'ok' : 'bad'}">${l.ok ? '✓' : '✗'} ${esc(names[dep] || dep)}:
+        ${esc(l.message)} (${new Date(l.at * 1000).toLocaleString()})</span>`).join('')}
+    </div>`;
+  const save = async () => {
+    try {
+      await api('/extensions', { method: 'PUT', body: JSON.stringify({ enabled: $('#ext-on').checked, hours: +$('#ext-hours').value || 0 }) });
+      toast($('#ext-on').checked ? `Auto extension on: ${+$('#ext-hours').value || 0} h after due` : 'Auto extension off');
+    } catch (e) { toast(e.message); }
+  };
+  $('#ext-on').onchange = save;
+  $('#ext-hours').onchange = save;
+}
+
+async function renderExtension(dep, box) {
+  let d;
+  try { d = await api(`/assignments/${dep}/extension`); } catch (e) { box.remove(); return; }
+  const i = d.info;
+  const auto = i && ['automated', 'both'].includes(i.extension);
+  const left = i && (i.unlimited_requests ? 99 : +i.requests_remaining || 0);
+  const ov = d.override || {};
+  const mode = ov.enabled === true ? 'on' : ov.enabled === false ? 'off' : 'default';
+  const penalty = i && i.points_deducted ? ` WebAssign takes off ${esc(i.points_deducted)}${i.penalty_method === 'del' ? '%' : ' points'} for an extension.` : '';
+  box.innerHTML = `<div class="body ext-row">
+      <strong>Extension</strong>
+      <span class="small">${!i ? esc(d.error || 'Not available') : !i.available ? 'WebAssign has no extensions for this assignment.'
+        : esc(i.extension_message || '') + penalty + ` Requests left: ${i.unlimited_requests ? 'unlimited' : left}.`}</span>
+      ${d.last ? `<span class="small ${d.last.ok ? 'ok' : 'bad'}">${d.last.ok ? '✓' : '✗'} ${esc(d.last.message)}
+        (${new Date(d.last.at * 1000).toLocaleString()})</span>` : ''}
+      <span class="ext-ctl">
+        ${i && i.available && auto && left > 0 ? '<button class="btn primary" id="ext-req">Request extension</button>'
+          : i && i.available && !auto ? '<span class="muted small">Only instructor-approved extensions: not used.</span>' : ''}
+        <label>Auto <select id="ext-mode">
+          <option value="default">Default (${d.auto.enabled ? 'on' : 'off'})</option>
+          <option value="on">On</option><option value="off">Off</option></select></label>
+        <label><input type="number" id="ext-h" min="0" max="240" step="1" value="${d.hours}"> h after due</label>
+      </span>
+    </div>`;
+  box.querySelector('#ext-mode').value = mode;
+  const save = async () => {
+    const m = box.querySelector('#ext-mode').value, h = +box.querySelector('#ext-h').value;
+    const body = m === 'default' && h === d.auto.hours ? { clear: true } : { enabled: m === 'default' ? null : m === 'on', hours: h };
+    try { await api(`/assignments/${dep}/extension`, { method: 'PUT', body: JSON.stringify(body) }); toast('Saved'); }
+    catch (e) { toast(e.message); }
+  };
+  box.querySelector('#ext-mode').onchange = save;
+  box.querySelector('#ext-h').onchange = save;
+  const req = box.querySelector('#ext-req');
+  if (req) req.onclick = async () => {
+    if (!confirm(`Request the automatic extension for this assignment now?${penalty ? '\n' + penalty.trim() : ''}`)) return;
+    req.disabled = true; req.textContent = 'Requesting…';
+    try {
+      await api(`/assignments/${dep}/extension`, { method: 'POST', body: '{}' });
+      toast('Extension granted', 5000);
+      store.set('list', null);
+    } catch (e) { toast(e.message, 8000); }
+    renderExtension(dep, box);
+  };
 }
 
 async function showList(refresh = false) {
@@ -101,7 +176,7 @@ async function showList(refresh = false) {
 }
 
 // ---------- Assignment ----------
-const VERSION = 'v13';  // keep equal to SHELL in sw.js
+const VERSION = 'v14';  // keep equal to SHELL in sw.js
 const draftKey = (dep, name) => `draft:${dep}:${name}`;
 let lastInput = 0;
 const MML = 'http://www.w3.org/1998/Math/MathML';
@@ -236,7 +311,7 @@ function buildQuestion(asg, q, practice = null) {
       <a class="btn" href="${esc(asg.url)}#${esc(q.box)}" target="_blank" rel="noopener">Open in WebAssign</a>`}</footer>`;
   const host = card.querySelector('.body');
   const root = host.attachShadow({ mode: 'open' });
-  root.innerHTML = qStyles(asg.styles || []) + `<div class="q">${q.html}</div>`;
+  root.innerHTML = qStyles(asg.styles || []) + `<div class="q qContent">${q.html}</div>`;
   fixInlineColors(root);
   root.querySelectorAll('.ap-tex').forEach(el => {
     try { el.innerHTML = convertLatexToMarkup(el.textContent); } catch {}
@@ -413,7 +488,9 @@ function renderAssignment(asg, focusBox) {
   setBar(asg.name || meta.name || 'Assignment', [meta.due, meta.score].filter(Boolean).join(' · '), true);
   const scroll = window.scrollY;
   view.innerHTML = `<div class="hdr"><span>${asg.questions.length} questions</span>
-    <span>Synced ${new Date(asg.synced * 1000).toLocaleTimeString()}</span></div>`;
+    <span>Synced ${new Date(asg.synced * 1000).toLocaleTimeString()}</span></div>
+    <div class="card ext" id="ext-one"></div>`;
+  renderExtension(asg.dep, $('#ext-one'));
   if (!asg.questions.length) view.insertAdjacentHTML('beforeend', '<p class="empty">No questions found.</p>');
   for (const q of asg.questions) view.append(buildQuestion(asg, q));
   if (focusBox) window.scrollTo(0, scroll);

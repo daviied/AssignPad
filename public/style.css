@@ -66,3 +66,11 @@ a.btn { display: inline-flex; align-items: center; text-decoration: none; }
 .hdr a { color: var(--accent); }
 @media (max-width: 600px) { main { padding: 12px; } .row { flex-wrap: wrap; } .row .meta { text-align: left; } }
 .card.practice { border: 1px dashed var(--accent); }
+.card.ext .body { display: flex; flex-wrap: wrap; gap: 6px 14px; align-items: center; }
+.ext-row label { display: inline-flex; align-items: center; gap: 6px; font-size: 14px; }
+.ext-row input[type=number] { width: 4.5em; font: inherit; padding: 4px 6px; border-radius: 6px; border: 1px solid var(--line); background: var(--card); color: var(--text); }
+.ext-row select { font: inherit; padding: 4px 6px; border-radius: 6px; border: 1px solid var(--line); background: var(--card); color: var(--text); }
+.ext-row > span.small { flex-basis: 100%; }
+.ext-ctl { display: flex; flex-wrap: wrap; gap: 8px 14px; align-items: center; }
+.small { font-size: 13px; } .muted { color: var(--muted); }
+.ok { color: var(--ok); } .bad { color: var(--bad); }
