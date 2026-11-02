@@ -7,6 +7,8 @@ It syncs with WebAssign: you see your assignments and submit answers from Assign
 
 - **Server** (Docker): FastAPI + headless Chromium (Playwright). It logs in to WebAssign with your Cengage email and password (environment variables), reads assignments and to submit answers on the real WebAssign page.
 - **PWA**: installable on desktop and mobile. Data is cached, so pages open immediately.
+- **Daily download**: once every `PREFETCH_HOURS` (default 24, `0` = off) the server downloads the list and all current assignments. When you open an assignment, the app shows the cached copy, gets the live page, and replaces the copy if something changed.
+- **Practice Another**: each question has a **Practice another** button. It opens WebAssign's practice version (new numbers, not graded). **Check answer** grades it.
 - **Browser extension** (`extension/`, optional): sends your WebAssign session cookies to the server, if you do not want to store your Cengage password.
 - **Answers**: you type in MathLive. The app converts LaTeX to MathML (the format MathType/WebAssign uses) and the server puts it in the WebAssign answer box, then clicks the WebAssign **Submit** button.
 

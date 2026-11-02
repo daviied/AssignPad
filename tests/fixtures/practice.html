@@ -1,0 +1,737 @@
+<html xmlns="https://www.w3.org/1999/xhtml" xml:lang="en" dir="ltr" lang="en" slick-uniqueid="1"><head><script>
+    //Notify the PAV frame that the content has changed height
+    window.addEventListener('load', () => {
+        function sendPAVHeight() {
+            setTimeout(() => {
+                const form = document.querySelector('form');
+                let height = form.offsetTop + form.offsetHeight;
+                window.parent.postMessage({PAVRESIZE: height}, 'https://www.webassign.net');
+                console.log(height);
+            }, 50);
+        }
+
+        const PAVobserver = new MutationObserver(() => {
+            sendPAVHeight();
+        });
+
+        PAVobserver.observe(document.body, {
+            childList: true,
+            subtree: true,
+            attributes: true
+        });
+    });
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <title>Practice Another Version</title>
+	        <link rel="stylesheet" type="text/css" href="/out/wacachea4f8446e5bade082a0ba9b81b4706499/common/css/layout.css">
+	        <link rel="stylesheet" type="text/css" href="/out/wacachea4f8446e5bade082a0ba9b81b4706499/common/css/student.css">
+	        <link rel="stylesheet" type="text/css" href="/out/wacachea4f8446e5bade082a0ba9b81b4706499/common/css/nav.css">
+	        <link rel="stylesheet" href="/wastatic/wacachea4f8446e5bade082a0ba9b81b4706499/themes/css/blue.css" type="text/css" media="screen">
+	        <link rel="stylesheet" type="text/css" href="/out/wacachea4f8446e5bade082a0ba9b81b4706499/questions/css/question.css">
+	        <link rel="stylesheet" type="text/css" href="/out/wacachea4f8446e5bade082a0ba9b81b4706499/css/question/mark.css">
+	        <link rel="stylesheet" href="/wastatic/wacachea4f8446e5bade082a0ba9b81b4706499/popup/css/form.css" type="text/css" media="screen">
+	        <link rel="stylesheet" href="/wastatic/wacachea4f8446e5bade082a0ba9b81b4706499/popup/css/nav.css" type="text/css" media="screen">
+	        <link rel="stylesheet" href="/wastatic/wacachea4f8446e5bade082a0ba9b81b4706499/popup/css/popup.css" type="text/css" media="screen">
+	        <link rel="stylesheet" type="text/css" href="/out/wacachea4f8446e5bade082a0ba9b81b4706499/common/css/tabs.css">
+	        <link rel="stylesheet" href="/wastatic/wacachea4f8446e5bade082a0ba9b81b4706499/forms/css/newpassword.css" type="text/css" media="screen">
+	        <link rel="stylesheet" type="text/css" href="/out/wacachea4f8446e5bade082a0ba9b81b4706499/css/buttons/unified_buttons.css">
+	        <link rel="stylesheet" type="text/css" href="/out/wacachea4f8446e5bade082a0ba9b81b4706499/css/questions/assets.css">
+	        <link rel="stylesheet" type="text/css" href="/out/wacachea4f8446e5bade082a0ba9b81b4706499/css/pads/graphingtool/application.css">
+	        <link rel="stylesheet" type="text/css" href="/out/wacachea4f8446e5bade082a0ba9b81b4706499/css/pads/numberline/style.css">
+	        <link rel="stylesheet" type="text/css" href="/out/wacachea4f8446e5bade082a0ba9b81b4706499/css/pads/mathpad/expressionpad.css">
+	        <link rel="stylesheet" type="text/css" href="/out/wacachea4f8446e5bade082a0ba9b81b4706499/pads/css/pad.css">
+	        <link rel="stylesheet" type="text/css" href="/out/wacachea4f8446e5bade082a0ba9b81b4706499/pads/css/calcPad.css">
+	        <link rel="stylesheet" type="text/css" href="/out/wacachea4f8446e5bade082a0ba9b81b4706499/pads/css/mathPad.css">
+	        <link rel="stylesheet" type="text/css" href="/out/wacachea4f8446e5bade082a0ba9b81b4706499/pads/css/physPad.css">
+	        <link rel="stylesheet" type="text/css" href="/out/wacachea4f8446e5bade082a0ba9b81b4706499/pads/css/chemPad.css">
+	        <link rel="stylesheet" type="text/css" href="/out/wacachea4f8446e5bade082a0ba9b81b4706499/css/print.css" media="print">
+    <script type="text/javascript">
+    //<![CDATA[
+        function addLoadEvent(func) {
+            var oldonload = window.onload;
+            if (typeof window.onload != 'function') {
+                try { window.onload = func; }
+                catch(err) {}
+            } else {
+                window.onload = function() {
+                    oldonload();
+                    func();
+                }
+            }
+        }
+    //]]>
+    </script>
+    <script type="text/javascript" src="/vendor/jquery/jquery-1.7.1.min.js"></script>
+    <script type="text/javascript">
+        // prevent jquery from stealing $ from mootools
+        $.noConflict();
+    </script>
+
+	<script type="text/javascript" src="/out/wacachea4f8446e5bade082a0ba9b81b4706499/common/js/faculty.js"></script>
+	<script type="text/javascript" src="/vendor/mootools/mootools-core-1.3.2-comp-yc.js"></script><script type="text/javascript" src="/vendor/mootools/mootools-more-1.3.2.1-comp-yc.js"></script>
+	<script type="text/javascript" src="/static/wacachea4f8446e5bade082a0ba9b81b4706499/js/visualizations/twodimensional/boxplot.js"></script>
+	<script type="text/javascript" src="/out/wacachea4f8446e5bade082a0ba9b81b4706499/wa.js"></script>
+	<script type="text/javascript" src="/out/wacachea4f8446e5bade082a0ba9b81b4706499/js/question/learnit.js"></script>
+
+    <script type="text/javascript" src="/vendor/jquery/jquery-ui-1.8.17.custom.min.js"></script>
+<script type="text/javascript" src="/vendor/jquery/plugins/constrain.js"></script>
+<script type="text/javascript" src="/vendor/jsxgraph/jsxgraphcore.js"></script>
+<script type="text/javascript" src="/vendor/underscore/underscore.js"></script>
+<script type="text/javascript" src="/static/js/pads/graphingtool/graphpad.js"></script>
+<script type="text/javascript" src="/static/js/pads/graphingtool/dashed.js"></script>
+<script type="text/javascript" src="/static/js/pads/graphingtool/touch-scroll.js"></script>
+
+    <script type="text/javascript" src="/vendor/raphael/raphael-min.js"></script>
+<script type="text/javascript" src="/static/js/pads/numberline/numberline.js"></script>
+<script type="text/javascript" src="/static/js/pads/numberline/grid.js"></script>
+<script type="text/javascript" src="/static/js/pads/numberline/element.js"></script>
+<script type="text/javascript" src="/static/js/pads/numberline/point.js"></script>
+<script type="text/javascript" src="/static/js/pads/numberline/end_arrow.js"></script>
+<script type="text/javascript" src="/static/js/pads/numberline/nosol.js"></script>
+<script type="text/javascript" src="/static/js/pads/numberline/segment.js"></script>
+<script type="text/javascript" src="/static/js/pads/numberline/view.js"></script>
+<script type="text/javascript" src="/static/js/pads/numberline/tools.js"></script>
+<script type="text/javascript" src="/static/js/pads/numberline/tooltip.js"></script>
+<script type="text/javascript" src="/static/js/pads/numberline/canvas_view.js"></script>
+<script type="text/javascript" src="/static/js/pads/numberline/controller.js"></script>
+<script type="text/javascript" src="/static/js/pads/numberline/stack.js"></script>
+<script type="text/javascript" src="/static/js/pads/numberline/flag.js"></script>
+<script type="text/javascript" src="/static/js/pads/numberline/io.js"></script>
+
+    
+<script type="text/javascript" src="/vendor/wacachea4f8446e5bade082a0ba9b81b4706499/jquery/plugins/doubletap.js"></script>
+<script type="text/javascript" src="/vendor/wacachea4f8446e5bade082a0ba9b81b4706499/mathquill/mathquill.js"></script>
+<link rel="stylesheet" href="/vendor/wacachea4f8446e5bade082a0ba9b81b4706499/mathquill/mathquill.css" type="text/css" media="screen">
+<script type="text/javascript" src="/static/wacachea4f8446e5bade082a0ba9b81b4706499/js/pads/mathpad/AnimationsEffect.js"></script>
+<script type="text/javascript" src="/static/wacachea4f8446e5bade082a0ba9b81b4706499/js/pads/mathpad/ButtonsOperation.js"></script>
+<script type="text/javascript" src="/static/wacachea4f8446e5bade082a0ba9b81b4706499/js/pads/mathpad/PanelContainer.js"></script>
+<script type="text/javascript" src="/static/wacachea4f8446e5bade082a0ba9b81b4706499/js/pads/mathpad/XmlGenerator.js"></script>
+<script type="text/javascript" src="/static/wacachea4f8446e5bade082a0ba9b81b4706499/js/pads/mathpad/UnicodeUtil.js"></script>
+<script type="text/javascript" src="/static/wacachea4f8446e5bade082a0ba9b81b4706499/js/pads/mathpad/ExternalXml.js"></script>
+<script type="text/javascript" src="/static/wacachea4f8446e5bade082a0ba9b81b4706499/js/pads/mathpad/ExpressionPad.js"></script>
+<script type="text/javascript" src="/static/wacachea4f8446e5bade082a0ba9b81b4706499/js/pads/mathpad/RescaleMathQuill.js"></script>
+<script type="text/javascript">
+    jQuery(document).on('ready', function() {
+        jQuery('#webAssign').click(function(){return;});
+    });
+
+    // gather pad responses when submit button is pressed
+    function getPadXML() {
+        jQuery.each(jQuery('.mathquill-editable'), function(index, element){
+            var xml = jQuery.INST().xmlGenerator.getXmlData(element);
+            var id = jQuery(element).attr('id').split('editable-math-')[1];
+            jQuery('#' + id).val(xml);
+        });
+    }
+</script>
+
+
+    <meta http-equiv="content-type" content="text/html; charset=iso-8859-1">
+    <meta name="MSSmartTagsPreventParsing" content="TRUE">
+    <meta http-equiv="expires" content="-1">
+    <meta http-equiv="pragma" content="no-cache">
+    <meta name="robots" content="all">
+    <meta name="description" content="">
+    <script type="text/javascript">
+    //<![CDATA[
+        function change_mark (input_box, value) {
+	if( typeof input_box == 'string' ) {
+		input_box = document.getElementById( input_box );	
+	} 
+
+    var new_val = escape(input_box.value);
+
+    if (new_val != value) {
+        var input_mark = document.getElementById('mark_' + input_box.id);
+
+        // Nothing to change.
+        if (!input_mark || input_mark.changed)
+            return;
+
+        // mark data
+        var marks = [['tick.svg','calculator_error.png','cross.svg','tick_feedback.svg','calculator_error_feedback.png','cross_feedback.svg'],['/wastatic/wacachea4f8446e5bade082a0ba9b81b4706499/common/img/tick.svg','/wastatic/wacachea4f8446e5bade082a0ba9b81b4706499/common/img/calculator_error.png','/wastatic/wacachea4f8446e5bade082a0ba9b81b4706499/common/img/cross.svg','/wastatic/wacachea4f8446e5bade082a0ba9b81b4706499/common/img/tick_feedback.svg','/wastatic/wacachea4f8446e5bade082a0ba9b81b4706499/common/img/calculator_error_grey_feedback.png','/wastatic/common/img/cross_feedback.svg'],["Your answer was correct, but has changed from what was graded.","Your calculation was based on incorrect values, but has changed from what was graded.","Your answer was incorrect, but has changed from what was graded.","Your answer was correct, but has changed from what was graded.  Click to see feedback.","Your calculation was based on incorrect values, but has changed from what was graded. Click to see feedback.","Your answer was incorrect, but has changed from what was graded.  Click to see feedback."] ];
+
+        // loop through icon names
+        for(var i in marks[0])
+            // find its grey equivalent
+            if(input_mark.src.match(new RegExp('\\b'+marks[0][i]+'\\b'))) {
+                // and insert it in place of the original
+                input_mark.src = marks[1][i];
+                input_mark.alt = input_mark.title = marks[2][i];
+
+                // raise the 'mark changed' flag
+                input_mark.changed = 1;
+
+                break;
+            }
+    }
+}
+
+function mark_is_changed( input_box ) {
+	if( typeof input_box == 'string' ) {
+		input_box = document.getElementById( input_box );	
+	}
+    var input_mark = document.getElementById('mark_' + input_box.id);
+
+    // Nothing to change.
+    if (!input_mark || input_mark.changed)
+        return;
+
+    return input_mark.changed ? true : false;
+}
+function setYpos () {
+	if (document.all && navigator.appVersion.indexOf('MSIE') != -1) {
+		document.forms[0].ypos.value = document.body.scrollTop;
+	} else {
+		document.forms[0].ypos.value = window.pageYOffset;
+	}
+    };
+
+function onSubmitHandler() {
+    ;
+    setYpos();
+};
+
+function grade (pos) {
+	;
+	setYpos();
+	document.forms[0].pos.value = pos;
+	document.forms[0].keypos.value = '';
+	document.forms[0].randpos.value = '';
+	document.forms[0].solpos.value = '';
+	document.forms[0].subaction.value = 'grade';
+}
+function key (pos,showAnsFlag) {
+	;
+	setYpos();
+	if (showAnsFlag == 1) {
+		document.forms[0].showAnswer.value = 1;
+		document.forms[0].hideAnswer.value = 0;
+	} else {
+		document.forms[0].hideAnswer.value = 1;
+		document.forms[0].showAnswer.value = 0;
+	}
+	document.forms[0].pos.value = '';
+	document.forms[0].keypos.value = pos;
+	document.forms[0].randpos.value = '';
+	document.forms[0].solpos.value = '';
+	document.forms[0].subaction.value = 'key';
+}
+function solution (pos,showSolFlag) {
+	;
+	setYpos();
+	if (showSolFlag == 1) {
+		document.forms[0].showSolution.value = 1;
+		document.forms[0].hideSolution.value = 0;
+	} else {
+		document.forms[0].hideSolution.value = 1;
+		document.forms[0].showSolution.value = 0;
+	}
+	document.forms[0].pos.value = '';
+	document.forms[0].keypos.value = '';
+	document.forms[0].randpos.value = '';
+	document.forms[0].solpos.value = pos;
+	document.forms[0].subaction.value = 'solution';
+}
+function tryagain (pos) {
+	setYpos();
+	document.forms[0].pos.value = '';
+	document.forms[0].keypos.value = '';
+	document.forms[0].randpos.value = pos;
+	document.forms[0].solpos.value = '';
+	document.forms[0].subaction.value = 'rand';
+
+        // If trying a tutorial again, loop elements and reset hidden fields.
+        // This should get back to the initial display.
+        var elems = document.forms[0].elements;
+
+        var skippedregex = /^skipped/; // match fields involving previously skipped tutorial steps.
+
+        var seedregex = /^seed/; // match the seed field used for persisting the seed between tutorial steps.
+
+        for( var i = 0; i < elems.length; i++ ) { // Loop form elements.
+
+            if( elems[i].name.match( skippedregex )
+                || elems[i].name.match( seedregex ) ) { // This field recorded a previously skipped step, or randomization seed.
+
+                elems[i].value = '';
+
+            }
+
+        }
+}
+function nextq () {
+	document.forms[0].pos.value = '';
+	document.forms[0].keypos.value = '';
+	document.forms[0].randpos.value = '';
+	document.forms[0].solpos.value = '';
+	document.forms[0].subaction.value = 'nextq';
+}
+function prevq () {
+	document.forms[0].pos.value = '';
+	document.forms[0].keypos.value = '';
+	document.forms[0].randpos.value = '';
+	document.forms[0].solpos.value = '';
+	document.forms[0].subaction.value = 'prevq';
+}
+function jumpToQuestion (pos) {
+	document.forms[0].pos.value = pos;
+	document.forms[0].keypos.value = '';
+	document.forms[0].randpos.value = '';
+	document.forms[0].solpos.value = '';
+	document.forms[0].subaction.value = 'jumpTo';
+	document.forms[0].submit(this);
+}
+function openWindow( comp, title, attr ) {
+    var new_title = title + new Date().getTime();
+    var newWindow = window.open( comp, new_title, attr );
+}
+
+    //]]>
+    </script>
+
+    <style type="text/css">
+    
+#popupWrap { 
+    min-width:950px;
+    background: white; 
+}
+.multBox {
+        margin:0 0 0 2em;
+}
+.correctHint {
+    color:#00aa00;
+    font-size:0.8em;
+    font-weight:bold;
+}
+    </style>
+
+    <script type="text/x-mathjax-config;executed=true">
+    MathJax.Hub.Config({
+        showProcessingMessages : false,
+        messageStyle : "none",
+        showMathMenu: true,
+        tex2jax: {
+            processEnvironments: true,
+            inlineMath: [ ["\\(","\\)"] ],
+            displayMath: [ ['$$','$$'], ["\\[","\\]"] ],
+            ignoreClass: "tex2jax_ignore",
+            processClass: "wa-math",
+            preview : "none",
+            processEscapes: true
+        },
+        "fast-preview": {
+            disabled: true
+        },
+        "HTML-CSS": {
+            linebreaks: {
+                automatic:true,
+                width: "latex-container"
+            },
+            styles: {
+              // block display
+              ".MathJax_Display" : {
+                  "text-align"   : "left !important",
+                  "display"      : "inline-block",
+                  "width"        : "auto",
+                  "padding-left" : "20px"
+              },
+              // inline display
+              ".MathJax" : {
+              //    "font-weight": "bold"
+              },
+              ".MathJax_Menu" : {
+                  "z-index": "201 !important"
+              },
+              ".MathJax.MathJax_FullWidth" : {
+                  "width": "auto !important",
+              }
+            }
+        }
+    });
+
+    // for SMW
+    if (typeof dojo !== 'undefined') {
+        MathJax.Hub.Queue(['Typeset', MathJax.Hub, dojo.byId('initial')]);
+    }
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.9/MathJax.js?config=TeX-AMS-MML_HTMLorMML" integrity="sha512-M36RUChWzAh1veeenRZFql7HydLEnkYmoloiCvVrhz402UZgKI93qkV7SsaxtVKdN95Wzajh39ysrXCq34NTsg==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+
+    <link rel="stylesheet" href="/vendor/latex2html5/latex2html5.css">
+<!-- Save these refs cause the Latex2Html5 is SCARY!! -->
+<script>window.scary = window.jQuery; window.dollar = window.$;</script>
+<script charset="UTF-8" type="text/javascript" src="/vendor/latex2html5/latex2html5.min.js"></script>
+<script>jQuery.noConflict();window.$ = document.id;</script>
+<!-- Put these back and clean up after ourselves -->
+<script>window.jQuery = window.scary; delete window.scary; window.$ = window.dollar; delete window.dollar;</script>
+
+    <link href="/static-assets/main.css" rel="stylesheet">
+    <script src="/static-assets/frontend.js"></script><script src="/static-assets/frontend.f5498197.js"></script>
+    <script>
+      CengageAnalytics = {"course":{"offeringIsbn":"9780357760543","institutionId":"6072","contextId":"WA-production-1681796","name":"MATH 2203 01","cgi":"XQVG4S0M925VPN1NTXF59U3D4V1AJVQE","id":"3324441"},"email":"x@x","assignment":{"name":"DE 8.1 Solving Systems using Substitution","id":"26583770","deploymentId":"40256112"},"role":"learner"};
+    </script>
+    <script>
+      function ready(fn) {
+        if (document.readyState === "complete") {
+          fn();
+        } else {
+          window.addEventListener("load", fn);
+        }
+      }
+
+      function OptanonWrapper() {
+        Cengage.Amplitude.optanonWrapper();
+      }
+      ready(function () {
+        if (window.top === window.self) {
+            Cengage.OneTrust.ready();
+        }
+        Cengage.Amplitude.ready("production","b73fa33d14285b95762b84a1611807b7",true);
+      });
+    </script>
+    <script async="" crossorigin="anonymous" integrity="sha384-yZgkX3BTOI6qmBCIQ4XyWMnm/b1L0Qh2jnFdufiihbdCtPftQRPshyvrPxRQQRj3" src="https://cdn.amplitude.com/libs/analytics-browser-2.24.2-min.js.gz"></script>
+
+
+
+<style type="text/css">.MathJax_Hover_Frame {border-radius: .25em; -webkit-border-radius: .25em; -moz-border-radius: .25em; -khtml-border-radius: .25em; box-shadow: 0px 0px 15px #83A; -webkit-box-shadow: 0px 0px 15px #83A; -moz-box-shadow: 0px 0px 15px #83A; -khtml-box-shadow: 0px 0px 15px #83A; border: 1px solid #A6D ! important; display: inline-block; position: absolute}
+.MathJax_Menu_Button .MathJax_Hover_Arrow {position: absolute; cursor: pointer; display: inline-block; border: 2px solid #AAA; border-radius: 4px; -webkit-border-radius: 4px; -moz-border-radius: 4px; -khtml-border-radius: 4px; font-family: 'Courier New',Courier; font-size: 9px; color: #F0F0F0}
+.MathJax_Menu_Button .MathJax_Hover_Arrow span {display: block; background-color: #AAA; border: 1px solid; border-radius: 3px; line-height: 0; padding: 4px}
+.MathJax_Hover_Arrow:hover {color: white!important; border: 2px solid #CCC!important}
+.MathJax_Hover_Arrow:hover span {background-color: #CCC!important}
+</style><style type="text/css">#MathJax_About {position: fixed; left: 50%; width: auto; text-align: center; border: 3px outset; padding: 1em 2em; background-color: #DDDDDD; color: black; cursor: default; font-family: message-box; font-size: 120%; font-style: normal; text-indent: 0; text-transform: none; line-height: normal; letter-spacing: normal; word-spacing: normal; word-wrap: normal; white-space: nowrap; float: none; z-index: 201; border-radius: 15px; -webkit-border-radius: 15px; -moz-border-radius: 15px; -khtml-border-radius: 15px; box-shadow: 0px 10px 20px #808080; -webkit-box-shadow: 0px 10px 20px #808080; -moz-box-shadow: 0px 10px 20px #808080; -khtml-box-shadow: 0px 10px 20px #808080; filter: progid:DXImageTransform.Microsoft.dropshadow(OffX=2, OffY=2, Color='gray', Positive='true')}
+#MathJax_About.MathJax_MousePost {outline: none}
+.MathJax_Menu {position: absolute; background-color: white; color: black; width: auto; padding: 2px; border: 1px solid #CCCCCC; margin: 0; cursor: default; font: menu; text-align: left; text-indent: 0; text-transform: none; line-height: normal; letter-spacing: normal; word-spacing: normal; word-wrap: normal; white-space: nowrap; float: none; z-index: 201; box-shadow: 0px 10px 20px #808080; -webkit-box-shadow: 0px 10px 20px #808080; -moz-box-shadow: 0px 10px 20px #808080; -khtml-box-shadow: 0px 10px 20px #808080; filter: progid:DXImageTransform.Microsoft.dropshadow(OffX=2, OffY=2, Color='gray', Positive='true')}
+.MathJax_MenuItem {padding: 2px 2em; background: transparent}
+.MathJax_MenuArrow {position: absolute; right: .5em; padding-top: .25em; color: #666666; font-size: .75em}
+.MathJax_MenuActive .MathJax_MenuArrow {color: white}
+.MathJax_MenuArrow.RTL {left: .5em; right: auto}
+.MathJax_MenuCheck {position: absolute; left: .7em}
+.MathJax_MenuCheck.RTL {right: .7em; left: auto}
+.MathJax_MenuRadioCheck {position: absolute; left: 1em}
+.MathJax_MenuRadioCheck.RTL {right: 1em; left: auto}
+.MathJax_MenuLabel {padding: 2px 2em 4px 1.33em; font-style: italic}
+.MathJax_MenuRule {border-top: 1px solid #CCCCCC; margin: 4px 1px 0px}
+.MathJax_MenuDisabled {color: GrayText}
+.MathJax_MenuActive {background-color: Highlight; color: HighlightText}
+.MathJax_MenuDisabled:focus, .MathJax_MenuLabel:focus {background-color: #E8E8E8}
+.MathJax_ContextMenu:focus {outline: none}
+.MathJax_ContextMenu .MathJax_MenuItem:focus {outline: none}
+#MathJax_AboutClose {top: .2em; right: .2em}
+.MathJax_Menu .MathJax_MenuClose {top: -10px; left: -10px}
+.MathJax_MenuClose {position: absolute; cursor: pointer; display: inline-block; border: 2px solid #AAA; border-radius: 18px; -webkit-border-radius: 18px; -moz-border-radius: 18px; -khtml-border-radius: 18px; font-family: 'Courier New',Courier; font-size: 24px; color: #F0F0F0}
+.MathJax_MenuClose span {display: block; background-color: #AAA; border: 1.5px solid; border-radius: 18px; -webkit-border-radius: 18px; -moz-border-radius: 18px; -khtml-border-radius: 18px; line-height: 0; padding: 8px 0 6px}
+.MathJax_MenuClose:hover {color: white!important; border: 2px solid #CCC!important}
+.MathJax_MenuClose:hover span {background-color: #CCC!important}
+.MathJax_MenuClose:hover:focus {outline: none}
+</style><style type="text/css">.MJX_Assistive_MathML {position: absolute!important; top: 0; left: 0; clip: rect(1px, 1px, 1px, 1px); padding: 1px 0 0 0!important; border: 0!important; height: 1px!important; width: 1px!important; overflow: hidden!important; display: block!important; -webkit-touch-callout: none; -webkit-user-select: none; -khtml-user-select: none; -moz-user-select: none; -ms-user-select: none; user-select: none}
+.MJX_Assistive_MathML.MJX_Assistive_MathML_Block {width: 100%!important}
+</style><style type="text/css">#MathJax_Zoom {position: absolute; background-color: #F0F0F0; overflow: auto; display: block; z-index: 301; padding: .5em; border: 1px solid black; margin: 0; font-weight: normal; font-style: normal; text-align: left; text-indent: 0; text-transform: none; line-height: normal; letter-spacing: normal; word-spacing: normal; word-wrap: normal; white-space: nowrap; float: none; -webkit-box-sizing: content-box; -moz-box-sizing: content-box; box-sizing: content-box; box-shadow: 5px 5px 15px #AAAAAA; -webkit-box-shadow: 5px 5px 15px #AAAAAA; -moz-box-shadow: 5px 5px 15px #AAAAAA; -khtml-box-shadow: 5px 5px 15px #AAAAAA; filter: progid:DXImageTransform.Microsoft.dropshadow(OffX=2, OffY=2, Color='gray', Positive='true')}
+#MathJax_ZoomOverlay {position: absolute; left: 0; top: 0; z-index: 300; display: inline-block; width: 100%; height: 100%; border: 0; padding: 0; margin: 0; background-color: white; opacity: 0; filter: alpha(opacity=0)}
+#MathJax_ZoomFrame {position: relative; display: inline-block; height: 0; width: 0}
+#MathJax_ZoomEventTrap {position: absolute; left: 0; top: 0; z-index: 302; display: inline-block; border: 0; padding: 0; margin: 0; background-color: white; opacity: 0; filter: alpha(opacity=0)}
+</style><style type="text/css">.MathJax_Preview {color: #888; display: contents}
+#MathJax_Message {position: fixed; left: 1em; bottom: 1.5em; background-color: #E6E6E6; border: 1px solid #959595; margin: 0px; padding: 2px 8px; z-index: 102; color: black; font-size: 80%; width: auto; white-space: nowrap}
+#MathJax_MSIE_Frame {position: absolute; top: 0; left: 0; width: 0px; z-index: 101; border: 0px; margin: 0px; padding: 0px}
+.MathJax_Error {color: #CC0000; font-style: italic}
+</style><link rel="preload" as="font" type="font/otf" crossorigin="anonymous" href="https://www.webassign.net/mathtype/editor/resources/fonts/stix_symbols.otf?v=7.23.3.d46a12"><link rel="preload" as="font" type="font/otf" crossorigin="anonymous" href="https://www.webassign.net/mathtype/editor/resources/fonts/stix_regular_letters_numbers.otf?v=7.23.3.d46a12"><link rel="preload" as="font" type="font/otf" crossorigin="anonymous" href="https://www.webassign.net/mathtype/editor/resources/fonts/stix_italic_letters.otf?v=7.23.3.d46a12"><link rel="preload" as="font" type="font/otf" crossorigin="anonymous" href="https://www.webassign.net/mathtype/editor/resources/fonts/stix_italic_rest.otf?v=7.23.3.d46a12"><link rel="stylesheet" type="text/css" href="https://www.webassign.net/mathtype/editor/resources/template.css?v=7.23.3.d46a12"><style type="text/css">.MJXp-script {font-size: .8em}
+.MJXp-right {-webkit-transform-origin: right; -moz-transform-origin: right; -ms-transform-origin: right; -o-transform-origin: right; transform-origin: right}
+.MJXp-bold {font-weight: bold}
+.MJXp-italic {font-style: italic}
+.MJXp-scr {font-family: MathJax_Script,'Times New Roman',Times,STIXGeneral,serif}
+.MJXp-frak {font-family: MathJax_Fraktur,'Times New Roman',Times,STIXGeneral,serif}
+.MJXp-sf {font-family: MathJax_SansSerif,'Times New Roman',Times,STIXGeneral,serif}
+.MJXp-cal {font-family: MathJax_Caligraphic,'Times New Roman',Times,STIXGeneral,serif}
+.MJXp-mono {font-family: MathJax_Typewriter,'Times New Roman',Times,STIXGeneral,serif}
+.MJXp-largeop {font-size: 150%}
+.MJXp-largeop.MJXp-int {vertical-align: -.2em}
+.MJXp-math {display: inline-block; line-height: 1.2; text-indent: 0; font-family: 'Times New Roman',Times,STIXGeneral,serif; white-space: nowrap; border-collapse: collapse}
+.MJXp-display {display: block; text-align: center; margin: 1em 0}
+.MJXp-math span {display: inline-block}
+.MJXp-box {display: block!important; text-align: center}
+.MJXp-box:after {content: " "}
+.MJXp-rule {display: block!important; margin-top: .1em}
+.MJXp-char {display: block!important}
+.MJXp-mo {margin: 0 .15em}
+.MJXp-mfrac {margin: 0 .125em; vertical-align: .25em}
+.MJXp-denom {display: inline-table!important; width: 100%}
+.MJXp-denom > * {display: table-row!important}
+.MJXp-surd {vertical-align: top}
+.MJXp-surd > * {display: block!important}
+.MJXp-script-box > *  {display: table!important; height: 50%}
+.MJXp-script-box > * > * {display: table-cell!important; vertical-align: top}
+.MJXp-script-box > *:last-child > * {vertical-align: bottom}
+.MJXp-script-box > * > * > * {display: block!important}
+.MJXp-mphantom {visibility: hidden}
+.MJXp-munderover, .MJXp-munder {display: inline-table!important}
+.MJXp-over {display: inline-block!important; text-align: center}
+.MJXp-over > * {display: block!important}
+.MJXp-munderover > *, .MJXp-munder > * {display: table-row!important}
+.MJXp-mtable {vertical-align: .25em; margin: 0 .125em}
+.MJXp-mtable > * {display: inline-table!important; vertical-align: middle}
+.MJXp-mtr {display: table-row!important}
+.MJXp-mtd {display: table-cell!important; text-align: center; padding: .5em 0 0 .5em}
+.MJXp-mtr > .MJXp-mtd:first-child {padding-left: 0}
+.MJXp-mtr:first-child > .MJXp-mtd {padding-top: 0}
+.MJXp-mlabeledtr {display: table-row!important}
+.MJXp-mlabeledtr > .MJXp-mtd:first-child {padding-left: 0}
+.MJXp-mlabeledtr:first-child > .MJXp-mtd {padding-top: 0}
+.MJXp-merror {background-color: #FFFF88; color: #CC0000; border: 1px solid #CC0000; padding: 1px 3px; font-style: normal; font-size: 90%}
+.MJXp-scale0 {-webkit-transform: scaleX(.0); -moz-transform: scaleX(.0); -ms-transform: scaleX(.0); -o-transform: scaleX(.0); transform: scaleX(.0)}
+.MJXp-scale1 {-webkit-transform: scaleX(.1); -moz-transform: scaleX(.1); -ms-transform: scaleX(.1); -o-transform: scaleX(.1); transform: scaleX(.1)}
+.MJXp-scale2 {-webkit-transform: scaleX(.2); -moz-transform: scaleX(.2); -ms-transform: scaleX(.2); -o-transform: scaleX(.2); transform: scaleX(.2)}
+.MJXp-scale3 {-webkit-transform: scaleX(.3); -moz-transform: scaleX(.3); -ms-transform: scaleX(.3); -o-transform: scaleX(.3); transform: scaleX(.3)}
+.MJXp-scale4 {-webkit-transform: scaleX(.4); -moz-transform: scaleX(.4); -ms-transform: scaleX(.4); -o-transform: scaleX(.4); transform: scaleX(.4)}
+.MJXp-scale5 {-webkit-transform: scaleX(.5); -moz-transform: scaleX(.5); -ms-transform: scaleX(.5); -o-transform: scaleX(.5); transform: scaleX(.5)}
+.MJXp-scale6 {-webkit-transform: scaleX(.6); -moz-transform: scaleX(.6); -ms-transform: scaleX(.6); -o-transform: scaleX(.6); transform: scaleX(.6)}
+.MJXp-scale7 {-webkit-transform: scaleX(.7); -moz-transform: scaleX(.7); -ms-transform: scaleX(.7); -o-transform: scaleX(.7); transform: scaleX(.7)}
+.MJXp-scale8 {-webkit-transform: scaleX(.8); -moz-transform: scaleX(.8); -ms-transform: scaleX(.8); -o-transform: scaleX(.8); transform: scaleX(.8)}
+.MJXp-scale9 {-webkit-transform: scaleX(.9); -moz-transform: scaleX(.9); -ms-transform: scaleX(.9); -o-transform: scaleX(.9); transform: scaleX(.9)}
+.MathJax_PHTML .noError {vertical-align: ; font-size: 90%; text-align: left; color: black; padding: 1px 3px; border: 1px solid}
+</style></head>
+<body class="tex2jax_ignore" style=""><div id="MathJax_Message" style="display: none;"></div>
+	<div id="webAssignShell">
+		
+	</div>
+	<div id="webAssign">
+		<div id="popupWrap" class="container">
+            <div class="formWrap">
+                <form method="post" id="practice" name="practice" action="/v4cgi/react/student/practice.tpl" enctype="x-www-form-urlencoded" onsubmit="onSubmitHandler()">
+                    
+
+                    
+
+
+    
+
+    
+
+    
+
+    
+<input type="hidden" name="subaction" id="subaction" value="">
+    
+<input type="hidden" name="pos" id="pos" value="">
+    
+<input type="hidden" name="keypos" id="keypos" value="">
+    
+<input type="hidden" name="randpos" id="randpos" value="">
+    
+<input type="hidden" name="solpos" id="solpos" value="">
+    
+<input type="hidden" name="ypos" id="ypos" value="">
+    
+<input type="hidden" name="showAnswer" id="showAnswer" value="">
+    
+<input type="hidden" name="hideAnswer" id="hideAnswer" value="">
+    
+<input type="hidden" name="showSolution" id="showSolution" value="">
+    
+<input type="hidden" name="hideSolution" id="hideSolution" value="">
+    
+<input type="hidden" name="randomizationError" id="randomizationError" value="">
+
+	
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<input type="hidden" name="feedback0" id="feedback0" value="rmh">
+
+
+
+<div id="pavQuestion" class="waQBox container">
+    <div class="qContent container">
+        <div class="studentQuestionBox studentQuestionContent">
+            
+	<link rel="stylesheet" type="text/css" href="/csstyle/style.css">
+
+
+<div class="wa1par">
+    Solve the given system of differential equations by substitution method.
+</div>
+<div class="wa1given">
+    <span class="watexinlineblock"><span class="watex watexlineheightnormal"><div class="watexline"><span class="watexinlineblock watexmiddle"><span class="watexarraycomplex"><table class="watexarray"><tbody><tr><td class="watexmiddle watexright"><span class="watexinlineblock watexmiddle"><table class="watexfraction"><tbody><tr><td class="watexnumerator"><span style="font-style: italic;">dx</span></td></tr><tr><td class="watexdenominator"><span style="font-style: italic;">dt</span></td></tr></tbody></table></span></td><td class="watexmiddle watexcenter">&nbsp;=&nbsp;</td><td class="watexmiddle watexleft"><font color="black">4</font><span style="font-style: italic;"><span style="font-style: italic;">x</span></span> + <font color="black">7</font><span style="font-style: italic;"><span style="font-style: italic;">y</span></span> </td></tr><tr><td class="watexmiddle watexright">&nbsp;<span class="watexinlineblock watexmiddle"><table class="watexfraction"><tbody><tr><td class="watexnumerator"><span style="font-style: italic;">dy</span></td></tr><tr><td class="watexdenominator"><span style="font-style: italic;">dt</span></td></tr></tbody></table></span></td><td class="watexmiddle watexcenter">&nbsp;=&nbsp;</td><td class="watexmiddle watexleft"><span style="font-style: italic;"><span style="font-style: italic;">x</span></span> <span style="font: inherit 2.00em/2.00em Trebuchet MS, Lucida Grande, sans-serif; padding: 0px">−</span> <font color="black">2</font><span style="font-style: italic;"><span style="font-style: italic;">y</span></span></td></tr></tbody></table></span></span></div></span></span>
+</div>
+<div class="wa1ans">
+    <span class="watexinlineblock"><span class="watex watexlineheightnormal"><div class="watexline">(<span style="font-style: italic;"><span style="font-style: italic;">x</span></span>(<span style="font-style: italic;"><span style="font-style: italic;">t</span></span>), <span style="font-style: italic;"><span style="font-style: italic;">y</span></span>(<span style="font-style: italic;"><span style="font-style: italic;">t</span></span>)) =&nbsp;<span class="watexinlineblock watexmiddle"><table class="watexparenleft"><tbody><tr><td class="watexparenimage"><img src="/wastatic/watex/img/leftparen1.gif" style="width: 0.588235294117647em; height: 2.27941176470588em"></td></tr></tbody></table></span>    <script src="/mathtype/editor/editor"></script>
+
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+        showProcessingMessages : false,
+        messageStyle : "none",
+        showMathMenu: true,
+        tex2jax: {
+            processEnvironments: true,
+            inlineMath: [ ["\\(","\\)"] ],
+            displayMath: [ ['$$','$$'], ["\\[","\\]"] ],
+            ignoreClass: "tex2jax_ignore",
+            processClass: "wa-math",
+            preview : "none",
+            processEscapes: true
+        },
+        "fast-preview": {
+            disabled: true
+        },
+        "HTML-CSS": {
+            linebreaks: {
+                automatic:true,
+                width: "latex-container"
+            },
+            styles: {
+              // block display
+              ".MathJax_Display" : {
+                  "text-align"   : "left !important",
+                  "display"      : "inline-block",
+                  "width"        : "auto",
+                  "padding-left" : "20px"
+              },
+              // inline display
+              ".MathJax" : {
+              //    "font-weight": "bold"
+              },
+              ".MathJax_Menu" : {
+                  "z-index": "201 !important"
+              },
+              ".MathJax.MathJax_FullWidth" : {
+                  "width": "auto !important",
+              }
+            }
+        }
+    });
+
+    // for SMW
+    if (typeof dojo !== 'undefined') {
+        MathJax.Hub.Queue(['Typeset', MathJax.Hub, dojo.byId('initial')]);
+    }
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.9/MathJax.js?config=TeX-AMS-MML_HTMLorMML" integrity="sha512-M36RUChWzAh1veeenRZFql7HydLEnkYmoloiCvVrhz402UZgKI93qkV7SsaxtVKdN95Wzajh39ysrXCq34NTsg==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+
+<link rel="stylesheet" type="text/css" href="/static/css/pads/mathtype/mathtype.css">
+<script type="text/javascript" src="/static/js/pads/mathtype/mathtype.js"></script>
+<script type="text/javascript" src="/static/js/pads/mathtype/autoformat.js"></script>
+<script type="text/javascript" src="/static/js/pads/mathtype/overlay.js"></script>
+<script>
+// Initialize the pad type if necessary.
+if(!window.mathTypeEditor["mt_calc"]) {
+    window.mathTypeEditor["mt_calc"] = com.wiris.jsEditor.JsEditor.newInstance({
+        'language': 'en',
+        'autoformat' : true,
+        'maxWidth': '480px',
+        'detectHand': false,
+        'reservedWords': 'sin,cos,tan,sec,cot,csc,asin,acos,atan,asec,acot,acsc,arcsin,arccos,arctan,arcsec,arccot,arccsc,sinh,cosh,tanh,sech,coth,csch,asinh,acosh,atanh,asech,acoth,acsch,arcsinh,arccosh,arctanh,arcsech,arccoth,arccsch,log,ln,DNE,undefined,IMPOSSIBLE',
+        'toolbar': "<toolbar ref='mt_calc'><tab name='Operations'><item ref='+' /><item ref='-' /><createButton title='Multiplication sign' offset='1' icon='http://www.webassign.net/wastatic/pads/img/mathtype/multiplicationSign.svg'><content><mo>&#x22C5;</mo></content></createButton><item ref='&#247;' /><item ref='autoDisplayFraction' /><item ref='superscript' /><item ref='squareRoot' /><item ref='!' /><item ref='subscript' /><item ref='subsuperscript' /><item ref='nRoot' /><item ref='verticalBar' /><item ref='exponential' /><item ref='naturalLog' /><createButton title='10 to the power of' offset='3' icon='http://www.webassign.net/wastatic/pads/img/mathtype/powerOfTen.svg'><content><msup><mn>10</mn><mrow/></msup></content></createButton><item ref='log' /><item ref='nlog' /></tab><tab name='Relations'><item ref='&lt;' /><item ref='&gt;' /><item ref='&#8804;' /><item ref='&#8805;' /><item ref='=' /><item ref='&#8800;' /><item ref='parenthesis' /><item ref='squareBracket' /><createButton title='left parenthesis and right square bracket' offset='1' icon='http://www.webassign.net/wastatic/pads/img/mathtype/openParenCloseSquare.svg'><content><mfenced open='(' close=']' separators=''><mrow /></mfenced></content></createButton><createButton title='left square bracket and right parenthesis' offset='1' icon='http://www.webassign.net/wastatic/pads/img/mathtype/openSquareCloseParen.svg'><content><mfenced open='[' close=')' separators=''><mrow /></mfenced></content></createButton><item ref='curlyBracket' /><item ref='&#8745;' /><item ref='&#8746;' /><item ref='&#8709;' /></tab><tab name='Other'><item ref='&#8734;' /><item ref='imaginaryI' /><item ref='&#176;' /><item ref='&#952;' /><item ref='&#960;' /><createButton title='Does not exist' offset='3' icon='http://www.webassign.net/wastatic/pads/img/mathtype/DNE.svg'><content><mtext>DNE</mtext></content></createButton><createButton title='No Solution' offset='11' icon='http://www.webassign.net/wastatic/pads/img/mathtype/noSolution.svg'><content><mtext>NO SOLUTION</mtext></content></createButton><createButton title='Undefined' offset='10' icon='http://www.webassign.net/wastatic/pads/img/mathtype/undefined.svg'><content><mtext>UNDEFINED</mtext></content></createButton></tab><tab name='Trig'><section  layout='horizontal'><createButton title='sin' offset='4' icon='http://www.webassign.net/wastatic/pads/img/mathtype/sin.svg'><content><mrow><mi>sin</mi><mfenced open='(' close=')' separators=''><mrow /></mfenced></mrow></content></createButton><createButton title='cos' offset='4' icon='http://www.webassign.net/wastatic/pads/img/mathtype/cos.svg'><content><mrow><mi>cos</mi><mfenced open='(' close=')' separators=''><mrow /></mfenced></mrow></content></createButton><createButton title='tan' offset='4' icon='http://www.webassign.net/wastatic/pads/img/mathtype/tan.svg'><content><mrow><mi>tan</mi><mfenced open='(' close=')' separators=''><mrow /></mfenced></mrow></content></createButton><createButton title='csc' offset='4' icon='http://www.webassign.net/wastatic/pads/img/mathtype/csc.svg'><content><mrow><mi>csc</mi><mfenced open='(' close=')' separators=''><mrow /></mfenced></mrow></content></createButton><createButton title='sec' offset='4' icon='http://www.webassign.net/wastatic/pads/img/mathtype/sec.svg'><content><mrow><mi>sec</mi><mfenced open='(' close=')' separators=''><mrow /></mfenced></mrow></content></createButton><createButton title='cot' offset='4' icon='http://www.webassign.net/wastatic/pads/img/mathtype/cot.svg'><content><mrow><mi>cot</mi><mfenced open='(' close=')' separators=''><mrow /></mfenced></mrow></content></createButton></section><section  layout='horizontal'><createButton title='arcsin' offset='7' icon='http://www.webassign.net/wastatic/pads/img/mathtype/arcsin.svg'\><content><mrow><mi>arcsin</mi><mfenced open='(' close=')' separators=''><mrow /></mfenced></mrow></content></createButton><createButton title='arccos' offset='7' icon='http://www.webassign.net/wastatic/pads/img/mathtype/arccos.svg'\><content><mrow><mi>arccos</mi><mfenced open='(' close=')' separators=''><mrow /></mfenced></mrow></content></createButton><createButton title='arctan' offset='7' icon='http://www.webassign.net/wastatic/pads/img/mathtype/arctan.svg'\><content><mrow><mi>arctan</mi><mfenced open='(' close=')' separators=''><mrow /></mfenced></mrow></content></createButton><createButton title='arccsc' offset='7' icon='http://www.webassign.net/wastatic/pads/img/mathtype/arccsc.svg'\><content><mrow><mi>arccsc</mi><mfenced open='(' close=')' separators=''><mrow /></mfenced></mrow></content></createButton><createButton title='arcsec' offset='7' icon='http://www.webassign.net/wastatic/pads/img/mathtype/arcsec.svg'\><content><mrow><mi>arcsec</mi><mfenced open='(' close=')' separators=''><mrow /></mfenced></mrow></content></createButton><createButton title='arccot' offset='7' icon='http://www.webassign.net/wastatic/pads/img/mathtype/arccot.svg'\><content><mrow><mi>arccot</mi><mfenced open='(' close=')' separators=''><mrow /></mfenced></mrow></content></createButton></section><section  layout='horizontal'><createButton title='sinh' offset='5' icon='http://www.webassign.net/wastatic/pads/img/mathtype/sinh.svg'><content><mrow><mi>sinh</mi><mfenced open='(' close=')' separators=''><mrow /></mfenced></mrow></content></createButton><createButton title='cosh' offset='5' icon='http://www.webassign.net/wastatic/pads/img/mathtype/cosh.svg'><content><mrow><mi>cosh</mi><mfenced open='(' close=')' separators=''><mrow /></mfenced></mrow></content></createButton><createButton title='tanh' offset='5' icon='http://www.webassign.net/wastatic/pads/img/mathtype/tanh.svg'><content><mrow><mi>tanh</mi><mfenced open='(' close=')' separators=''><mrow /></mfenced></mrow></content></createButton><createButton title='csch' offset='5' icon='http://www.webassign.net/wastatic/pads/img/mathtype/csch.svg'><content><mrow><mi>csch</mi><mfenced open='(' close=')' separators=''><mrow /></mfenced></mrow></content></createButton><createButton title='sech' offset='5' icon='http://www.webassign.net/wastatic/pads/img/mathtype/sech.svg'><content><mrow><mi>sech</mi><mfenced open='(' close=')' separators=''><mrow /></mfenced></mrow></content></createButton><createButton title='coth' offset='5' icon='http://www.webassign.net/wastatic/pads/img/mathtype/coth.svg'><content><mrow><mi>coth</mi><mfenced open='(' close=')' separators=''><mrow /></mfenced></mrow></content></createButton><createButton title='arcsinh' offset='8' icon='http://www.webassign.net/wastatic/pads/img/mathtype/arcsinh.svg' extra='true'><content><mrow><mi>arcsinh</mi><mfenced open='(' close=')' separators=''><mrow /></mfenced></mrow></content></createButton><createButton title='arccosh' offset='8' icon='http://www.webassign.net/wastatic/pads/img/mathtype/arccosh.svg' extra='true'><content><mrow><mi>arccosh</mi><mfenced open='(' close=')' separators=''><mrow /></mfenced></mrow></content></createButton><createButton title='arctanh' offset='8' icon='http://www.webassign.net/wastatic/pads/img/mathtype/arctanh.svg' extra='true'><content><mrow><mi>arctanh</mi><mfenced open='(' close=')' separators=''><mrow /></mfenced></mrow></content></createButton><createButton title='arccsch' offset='8' icon='http://www.webassign.net/wastatic/pads/img/mathtype/arccsch.svg' extra='true'><content><mrow><mi>arccsch</mi><mfenced open='(' close=')' separators=''><mrow /></mfenced></mrow></content></createButton><createButton title='arcsech' offset='8' icon='http://www.webassign.net/wastatic/pads/img/mathtype/arcsech.svg' extra='true'><content><mrow><mi>arcsech</mi><mfenced open='(' close=')' separators=''><mrow /></mfenced></mrow></content></createButton><createButton title='arccoth' offset='8' icon='http://www.webassign.net/wastatic/pads/img/mathtype/arccoth.svg' extra='true'><content><mrow><mi>arccoth</mi><mfenced open='(' close=')' separators=''><mrow /></mfenced></mrow></content></createButton></section></tab><tab name='Greek'><section  layout='horizontal'><createButton title='Lowercase alpha' offset='1' icon='http://www.webassign.net/wastatic/pads/img/mathtype/alpha.svg'><content><mi>&#945;</mi></content></createButton><createButton title='Lowercase beta' offset='1' icon='http://www.webassign.net/wastatic/pads/img/mathtype/beta.svg'><content><mi>&#946;</mi></content></createButton><createButton title='Lowercase gamma' offset='1' icon='http://www.webassign.net/wastatic/pads/img/mathtype/gamma.svg'><content><mi>&#947;</mi></content></createButton><createButton title='Lowercase delta' offset='1' icon='http://www.webassign.net/wastatic/pads/img/mathtype/delta.svg'><content><mi>&#948;</mi></content></createButton><createButton title='Lowercase epsilon' offset='1' icon='http://www.webassign.net/wastatic/pads/img/mathtype/epsilon.svg'><content><mi>&#949;</mi></content></createButton><createButton title='Lowercase zeta' offset='1' icon='http://www.webassign.net/wastatic/pads/img/mathtype/zeta.svg'><content><mi>&#950;</mi></content></createButton><createButton title='Lowercase eta' offset='1' icon='http://www.webassign.net/wastatic/pads/img/mathtype/eta.svg'><content><mi>&#951;</mi></content></createButton><createButton title='Lowercase theta' offset='1' icon='http://www.webassign.net/wastatic/pads/img/mathtype/theta.svg'><content><mi>&#952;</mi></content></createButton><createButton title='Lowercase iota' offset='1' icon='http://www.webassign.net/wastatic/pads/img/mathtype/iota.svg'><content><mi>&#953;</mi></content></createButton><createButton title='Lowercase kappa' offset='1' icon='http://www.webassign.net/wastatic/pads/img/mathtype/kappa.svg'><content><mi>&#954;</mi></content></createButton><createButton title='Lowercase lambda' offset='1' icon='http://www.webassign.net/wastatic/pads/img/mathtype/lambda.svg'><content><mi>&#955;</mi></content></createButton><createButton title='Lowercase mu' offset='1' icon='http://www.webassign.net/wastatic/pads/img/mathtype/mu.svg'><content><mi>&#956;</mi></content></createButton><createButton title='Lowercase nu' offset='1' icon='http://www.webassign.net/wastatic/pads/img/mathtype/nu.svg'><content><mi>&#957;</mi></content></createButton><createButton title='Lowercase xi' offset='1' icon='http://www.webassign.net/wastatic/pads/img/mathtype/xi.svg'><content><mi>&#958;</mi></content></createButton><createButton title='Lowercase omicron' offset='1' icon='http://www.webassign.net/wastatic/pads/img/mathtype/omicron.svg'><content><mi>&#959;</mi></content></createButton><createButton title='Lowercase pi' offset='1' icon='http://www.webassign.net/wastatic/pads/img/mathtype/pi.svg'><content><mi>&#960;</mi></content></createButton><createButton title='Lowercase rho' offset='1' icon='http://www.webassign.net/wastatic/pads/img/mathtype/rho.svg'><content><mi>&#961;</mi></content></createButton><createButton title='Lowercase sigma' offset='1' icon='http://www.webassign.net/wastatic/pads/img/mathtype/sigma.svg'><content><mi>&#963;</mi></content></createButton><createButton title='Lowercase tau' offset='1' icon='http://www.webassign.net/wastatic/pads/img/mathtype/tau.svg'><content><mi>&#964;</mi></content></createButton><createButton title='Lowercase upsilon' offset='1' icon='http://www.webassign.net/wastatic/pads/img/mathtype/upsilon.svg'><content><mi>&#965;</mi></content></createButton><createButton title='Lowercase phi' offset='1' icon='http://www.webassign.net/wastatic/pads/img/mathtype/phi.svg'><content><mi>&#981;</mi></content></createButton><createButton title='Lowercase chi' offset='1' icon='http://www.webassign.net/wastatic/pads/img/mathtype/chi.svg'><content><mi>&#967;</mi></content></createButton><createButton title='Lowercase psi' offset='1' icon='http://www.webassign.net/wastatic/pads/img/mathtype/psi.svg'><content><mi>&#968;</mi></content></createButton><createButton title='Lowercase omega' offset='1' icon='http://www.webassign.net/wastatic/pads/img/mathtype/omega.svg'><content><mi>&#969;</mi></content></createButton><createButton title='Capital alpha' offset='1' icon='http://www.webassign.net/wastatic/pads/img/mathtype/cap_alpha.svg' extra='true'><content><mo>&#913;</mo></content></createButton><createButton title='Capital beta' offset='1' icon='http://www.webassign.net/wastatic/pads/img/mathtype/cap_beta.svg' extra='true'><content><mo>&#914;</mo></content></createButton><createButton title='Capital gamma' offset='1' icon='http://www.webassign.net/wastatic/pads/img/mathtype/cap_gamma.svg' extra='true'><content><mo>&#915;</mo></content></createButton><createButton title='Capital delta' offset='1' icon='http://www.webassign.net/wastatic/pads/img/mathtype/cap_delta.svg' extra='true'><content><mo>&#916;</mo></content></createButton><createButton title='Capital epsilon' offset='1' icon='http://www.webassign.net/wastatic/pads/img/mathtype/cap_epsilon.svg' extra='true'><content><mo>&#917;</mo></content></createButton><createButton title='Capital zeta' offset='1' icon='http://www.webassign.net/wastatic/pads/img/mathtype/cap_zeta.svg' extra='true'><content><mo>&#918;</mo></content></createButton><createButton title='Capital eta' offset='1' icon='http://www.webassign.net/wastatic/pads/img/mathtype/cap_eta.svg' extra='true'><content><mo>&#919;</mo></content></createButton><createButton title='Capital theta' offset='1' icon='http://www.webassign.net/wastatic/pads/img/mathtype/cap_theta.svg' extra='true'><content><mo>&#920;</mo></content></createButton><createButton title='Capital iota' offset='1' icon='http://www.webassign.net/wastatic/pads/img/mathtype/cap_iota.svg' extra='true'><content><mo>&#921;</mo></content></createButton><createButton title='Capital kappa' offset='1' icon='http://www.webassign.net/wastatic/pads/img/mathtype/cap_kappa.svg' extra='true'><content><mo>&#922;</mo></content></createButton><createButton title='Capital lambda' offset='1' icon='http://www.webassign.net/wastatic/pads/img/mathtype/cap_lambda.svg' extra='true'><content><mo>&#923;</mo></content></createButton><createButton title='Capital mu' offset='1' icon='http://www.webassign.net/wastatic/pads/img/mathtype/cap_mu.svg' extra='true'><content><mo>&#924;</mo></content></createButton><createButton title='Capital nu' offset='1' icon='http://www.webassign.net/wastatic/pads/img/mathtype/cap_nu.svg' extra='true'><content><mo>&#925;</mo></content></createButton><createButton title='Capital xi' offset='1' icon='http://www.webassign.net/wastatic/pads/img/mathtype/cap_xi.svg' extra='true'><content><mo>&#926;</mo></content></createButton><createButton title='Capital omicron' offset='1' icon='http://www.webassign.net/wastatic/pads/img/mathtype/cap_omicron.svg' extra='true'><content><mo>&#927;</mo></content></createButton><createButton title='Capital pi' offset='1' icon='http://www.webassign.net/wastatic/pads/img/mathtype/cap_pi.svg' extra='true'><content><mo>&#928;</mo></content></createButton><createButton title='Capital rho' offset='1' icon='http://www.webassign.net/wastatic/pads/img/mathtype/cap_rho.svg' extra='true'><content><mo>&#929;</mo></content></createButton><createButton title='Capital sigma' offset='1' icon='http://www.webassign.net/wastatic/pads/img/mathtype/cap_sigma.svg' extra='true'><content><mo>&#931;</mo></content></createButton><createButton title='Capital tau' offset='1' icon='http://www.webassign.net/wastatic/pads/img/mathtype/cap_tau.svg' extra='true'><content><mo>&#932;</mo></content></createButton><createButton title='Capital upsilon' offset='1' icon='http://www.webassign.net/wastatic/pads/img/mathtype/cap_upsilon.svg' extra='true'><content><mo>&#933;</mo></content></createButton><createButton title='Capital phi' offset='1' icon='http://www.webassign.net/wastatic/pads/img/mathtype/cap_phi.svg' extra='true'><content><mo>&#934;</mo></content></createButton><createButton title='Capital chi' offset='1' icon='http://www.webassign.net/wastatic/pads/img/mathtype/cap_chi.svg' extra='true'><content><mo>&#935;</mo></content></createButton><createButton title='Capital psi' offset='1' icon='http://www.webassign.net/wastatic/pads/img/mathtype/cap_psi.svg' extra='true'><content><mo>&#936;</mo></content></createButton><createButton title='Capital omega' offset='1' icon='http://www.webassign.net/wastatic/pads/img/mathtype/cap_omega.svg' extra='true'><content><mo>&#937;</mo></content></createButton></section></tab><tab name='Vectors'><item ref='angleBrackets' /><item ref='hatAccent' /><item ref='rightArrowAccent' /><item ref='vectorAccent' /><item ref='bold' /><createButton title='Bold i' offset='1' icon='http://www.webassign.net/wastatic/pads/img/mathtype/boldI.svg'><content><mi>&#120310;</mi></content></createButton><createButton title='Bold j' offset='1' icon='http://www.webassign.net/wastatic/pads/img/mathtype/boldJ.svg'><content><mi>&#120311;</mi></content></createButton><createButton title='Bold k' offset='1' icon='http://www.webassign.net/wastatic/pads/img/mathtype/boldK.svg'><content><mi>&#120312;</mi></content></createButton></tab></toolbar>",
+        'fontFamily': 'STIX'
+    });
+    let currentIntervalIdmt_calc;
+}
+
+window.addEventListener('load', () =>  {
+    var boxId = "RA_5224579_0_0_5224629";
+    if (window.mathTypeOverlay) {
+        window.mathTypeOverlay.initializeBox(boxId);
+    }
+    // In order for mathtype to fully initialize, it must be inserted onto the page
+    // inserting it into a hidden element such that it can fully process
+    const extraDiv = window.ensureMathTypeStagingHost("mt_calc");
+    window.mathTypeEditor["mt_calc"].insertInto(extraDiv);
+
+
+    //Save the initial value
+    if(!("$javascript_value" === "")) {
+        var answerValue = document.getElementById(boxId);
+        answerValue.value = "";
+        warnInvalidMathTypeCharacters(boxId);
+    }
+    if (window.mathTypeOverlay) {
+        window.mathTypeOverlay.initializeBox(boxId);
+    }
+});
+</script>
+<div class="mathtype-wrapper">
+    <div class="mathtype-scroll-wrapper">
+        <div id="editable-math-RA_5224579_0_0_5224629" class="mathtype mtClosed" data-type="mt_calc" data-boxid="RA_5224579_0_0_5224629" tabindex="0" role="button" aria-expanded="false" aria-describedby="mathtype-RA_5224579_0_0_5224629-keyboard-instructions" data-overlay-box-id="RA_5224579_0_0_5224629" style="width: 120px; height: 36px; min-height: 36px;"><span class="mtAnswer"></span></div>
+        <button class="mathtype-overlay-trigger" data-boxid="RA_5224579_0_0_5224629" type="button" aria-label="Open full math pad" aria-haspopup="dialog" aria-controls="mathtype-overlay" aria-expanded="false" aria-disabled="false" data-overlay-trigger-bound="true"><span class="mathtype-overlay-trigger-icon" aria-hidden="true"></span></button>
+    </div>
+        <span id="mathtype-RA_5224579_0_0_5224629-keyboard-instructions" class="mathtype-sr-only">Press Space or Enter to edit this math answer.</span>
+    <div id="mathtype-RA_5224579_0_0_5224629-warning-wrapper" style="display: inline-block;"></div>
+    <textarea id="latex-source-RA_5224579_0_0_5224629" class="latex-source" hidden="hidden" aria-hidden="true" tabindex="-1"></textarea>
+</div>
+
+
+
+<input type="hidden" name="RA_5224579_0_0_5224629" id="RA_5224579_0_0_5224629" value="">
+<input type="hidden" name="enabled_RA_5224579_0_0_5224629" id="enabled_RA_5224579_0_0_5224629" value="1"><span class="padMark">
+    
+</span><input type="hidden" class="wa_question_box " value="RA_5224579_0_0_5224629"><input type="hidden" id="RA_5224579_0_0_5224629_settings" value="{&quot;mathtype&quot;:1,&quot;pad&quot;:&quot;mt_calc&quot;,&quot;js_version&quot;:0}"><span class="watexinlineblock watexmiddle"><table class="watexparenright"><tbody><tr><td class="watexparenimage"><img src="/wastatic/watex/img/rightparen1.gif" style="width: 0.514705882352941em; height: 2.27941176470588em"></td></tr></tbody></table></span></div></span></span>
+</div><div class="extraContent">
+	
+</div>
+
+
+        </div>
+    </div>
+</div>
+
+
+<input type="hidden" name="buttonStates" id="buttonStates" value="{&quot;tryAgain&quot;:0,&quot;showAnswer&quot;:0,&quot;showSolution&quot;:false}">
+
+
+</form>
+
+                
+            </div>
+		</div>
+	</div>
+	
+    <script type="text/javascript" src="/static/wacachea4f8446e5bade082a0ba9b81b4706499/js/wa-analytics.js"></script>
+    <div id="analyticsBox" style="display: none;">
+        <input type="hidden" id="wa-analytics-URL" value="https://wa-client-eventing-production01.cengage.info/v1/activity">
+        <input type="hidden" id="wa-analytics-API" value="iVwho87e3fpgQK4da7kBMyMkBmDhaLJExZC68WtW">
+        <input type="hidden" id="wa-analytics-sessionId" value="bba273cfb990c53277a8cda1be7119ea">
+        <input type="hidden" id="wa-analytics-userSSOGUID" value="c2dedf7b831cf8ce:7155b17c:198e1d41696:-13">
+        <input type="hidden" id="wa-analytics-role" value="Student">
+    </div>
+
+
+
+
+
+
+
+<div id="mathtype-staging-mt_calc" aria-hidden="true" style="position: absolute; left: -99999px; top: 0px; width: 1px; height: 1px; overflow: hidden;"><div class="wrs_editor wrs_flexEditor wrs_animated" role="application"><div class="wrs_toolbar" style="display: block;"><div class="wrs_linksContainer"><a href="https://www.webassign.net/mathtype/editor/resources/help.html?lang=en&amp;v=7.23.3.d46a12" target="_blank" title="Manual" class="wrs_linkButton wrs_imageContainer" style="width: 18px; height: 18px;"><img class="wrs_image" alt="" src="https://www.webassign.net/mathtype/editor/resources/icons/icons.png?v=7.23.3.d46a12" draggable="false" style="margin-left: -1302px; margin-top: -216px;"></a></div><div class="wrs_header" role="tablist" style="display: block;"><button role="tab" class="wrs_textTab wrs_selected" title="Operations (Alt+1)">Operations</button><button role="tab" class="wrs_textTab" title="Relations (Alt+2)">Relations</button><button role="tab" class="wrs_textTab" title="Other (Alt+3)">Other</button><button role="tab" class="wrs_textTab" title="Trig (Alt+4)">Trig</button><button role="tab" class="wrs_textTab" title="Greek (Alt+5)">Greek</button><button role="tab" class="wrs_textTab" title="Vectors (Alt+6)">Vectors</button><button role="tab" class="wrs_context" title="Contextual tab (Alt+7)"><span class="wrs_imageContainer" style="width: 30px; height: 20px;"><img class="wrs_image" alt="" src="https://www.webassign.net/mathtype/editor/resources/icons/icons.png?v=7.23.3.d46a12" draggable="false" style="margin-left: -1268px; margin-top: -146px;"></span></button></div><div class="wrs_panelContainer"><div class="wrs_multipleRowPanel wrs_selected"><table class="wrs_layoutFor2Rows wrs_last"><tbody><tr><td><button title="Plus sign" aria-label="Plus sign" class="wrs_imageContainer wrs_button" style="width: 22px; height: 22px;"><img class="wrs_image" alt="" src="https://www.webassign.net/mathtype/editor/resources/icons/icons.png?v=7.23.3.d46a12" draggable="false" style="margin-left: -2px; margin-top: -497px;"></button></td><td><button title="Multiplication sign" aria-label="Multiplication sign" class="wrs_imageContainer wrs_button" style="width: 28px; height: 28px;"><img class="wrs_image" alt="" src="http://www.webassign.net/wastatic/pads/img/mathtype/multiplicationSign.svg?v=7.23.3.d46a12" draggable="false" style="margin-left: 0px; margin-top: 0px;"></button></td><td><button title="Fraction (Ctrl+/)" aria-label="Fraction (Ctrl+/)" class="wrs_imageContainer wrs_button" style="width: 33px; height: 33px;"><img class="wrs_image" alt="" src="https://www.webassign.net/mathtype/editor/resources/icons/icons.png?v=7.23.3.d46a12" draggable="false" style="margin-left: -2px; margin-top: -2px;"></button></td><td><button title="Square root" aria-label="Square root" class="wrs_imageContainer wrs_button" style="width: 33px; height: 33px;"><img class="wrs_image" alt="" src="https://www.webassign.net/mathtype/editor/resources/icons/icons.png?v=7.23.3.d46a12" draggable="false" style="margin-left: -2px; margin-top: -101px;"></button></td><td><button title="Subscript (Ctrl+Down)" aria-label="Subscript (Ctrl+Down)" class="wrs_imageContainer wrs_button" style="width: 33px; height: 33px;"><img class="wrs_image" alt="" src="https://www.webassign.net/mathtype/editor/resources/icons/icons.png?v=7.23.3.d46a12" draggable="false" style="margin-left: -2px; margin-top: -299px;"></button></td><td><button title="Root" aria-label="Root" class="wrs_imageContainer wrs_button" style="width: 33px; height: 33px;"><img class="wrs_image" alt="" src="https://www.webassign.net/mathtype/editor/resources/icons/icons.png?v=7.23.3.d46a12" draggable="false" style="margin-left: -2px; margin-top: -167px;"></button></td><td><button title="Exponential" aria-label="Exponential" class="wrs_imageContainer wrs_button" style="width: 33px; height: 33px;"><img class="wrs_image" alt="" src="https://www.webassign.net/mathtype/editor/resources/icons/icons.png?v=7.23.3.d46a12" draggable="false" style="margin-left: -1014px; margin-top: -508px;"></button></td><td><button title="10 to the power of" aria-label="10 to the power of" class="wrs_imageContainer wrs_button" style="width: 28px; height: 28px;"><img class="wrs_image" alt="" src="http://www.webassign.net/wastatic/pads/img/mathtype/powerOfTen.svg?v=7.23.3.d46a12" draggable="false" style="margin-left: 0px; margin-top: 0px;"></button></td><td><button title="Logarithm to base n" aria-label="Logarithm to base n" class="wrs_imageContainer wrs_button" style="width: 33px; height: 33px;"><img class="wrs_image" alt="" src="https://www.webassign.net/mathtype/editor/resources/icons/icons.png?v=7.23.3.d46a12" draggable="false" style="margin-left: -948px; margin-top: -464px;"></button></td></tr><tr><td><button title="Minus sign" aria-label="Minus sign" class="wrs_imageContainer wrs_button" style="width: 22px; height: 22px;"><img class="wrs_image" alt="" src="https://www.webassign.net/mathtype/editor/resources/icons/icons.png?v=7.23.3.d46a12" draggable="false" style="margin-left: -2px; margin-top: -541px;"></button></td><td><button title="Division sign" aria-label="Division sign" class="wrs_imageContainer wrs_button" style="width: 22px; height: 22px;"><img class="wrs_image" alt="" src="https://www.webassign.net/mathtype/editor/resources/icons/icons.png?v=7.23.3.d46a12" draggable="false" style="margin-left: -35px; margin-top: -24px;"></button></td><td><button title="Superscript (Ctrl+Up)" aria-label="Superscript (Ctrl+Up)" class="wrs_imageContainer wrs_button" style="width: 33px; height: 33px;"><img class="wrs_image" alt="" src="https://www.webassign.net/mathtype/editor/resources/icons/icons.png?v=7.23.3.d46a12" draggable="false" style="margin-left: -2px; margin-top: -233px;"></button></td><td><button title="Factorial" aria-label="Factorial" class="wrs_imageContainer wrs_button" style="width: 33px; height: 33px;"><img class="wrs_image" alt="" src="https://www.webassign.net/mathtype/editor/resources/icons/icons.png?v=7.23.3.d46a12" draggable="false" style="margin-left: -1047px; margin-top: -530px;"></button></td><td><button title="Superscript and subscript" aria-label="Superscript and subscript" class="wrs_imageContainer wrs_button" style="width: 33px; height: 33px;"><img class="wrs_image" alt="" src="https://www.webassign.net/mathtype/editor/resources/icons/icons.png?v=7.23.3.d46a12" draggable="false" style="margin-left: -651px; margin-top: -101px;"></button></td><td><button title="Vertical bars" aria-label="Vertical bars" class="wrs_imageContainer wrs_button" style="width: 33px; height: 33px;"><img class="wrs_image" alt="" src="https://www.webassign.net/mathtype/editor/resources/icons/icons.png?v=7.23.3.d46a12" draggable="false" style="margin-left: -2px; margin-top: -398px;"></button></td><td><button title="Natural logarithm" aria-label="Natural logarithm" class="wrs_imageContainer wrs_button" style="width: 33px; height: 33px;"><img class="wrs_image" alt="" src="https://www.webassign.net/mathtype/editor/resources/icons/icons.png?v=7.23.3.d46a12" draggable="false" style="margin-left: -948px; margin-top: -530px;"></button></td><td><button title="Logarithm" aria-label="Logarithm" class="wrs_imageContainer wrs_button" style="width: 33px; height: 33px;"><img class="wrs_image" alt="" src="https://www.webassign.net/mathtype/editor/resources/icons/icons.png?v=7.23.3.d46a12" draggable="false" style="margin-left: -948px; margin-top: -398px;"></button></td><td><div class="wrs_empty"></div></td></tr></tbody></table><span class="wrs_line" style="display: none;"></span></div><div class="wrs_multipleRowPanel"><table class="wrs_layoutFor2Rows wrs_last"><tbody><tr><td><button title="Less-than sign" aria-label="Less-than sign" class="wrs_imageContainer wrs_button" style="width: 22px; height: 22px;"><img class="wrs_image" alt="" src="https://www.webassign.net/mathtype/editor/resources/icons/icons.png?v=7.23.3.d46a12" draggable="false" style="margin-left: -101px; margin-top: -332px;"></button></td><td><button title="Less-than or equal to" aria-label="Less-than or equal to" class="wrs_imageContainer wrs_button" style="width: 22px; height: 22px;"><img class="wrs_image" alt="" src="https://www.webassign.net/mathtype/editor/resources/icons/icons.png?v=7.23.3.d46a12" draggable="false" style="margin-left: -35px; margin-top: -90px;"></button></td><td><button title="Equals sign" aria-label="Equals sign" class="wrs_imageContainer wrs_button" style="width: 22px; height: 22px;"><img class="wrs_image" alt="" src="https://www.webassign.net/mathtype/editor/resources/icons/icons.png?v=7.23.3.d46a12" draggable="false" style="margin-left: -79px; margin-top: -178px;"></button></td><td><button title="Parentheses" aria-label="Parentheses" class="wrs_imageContainer wrs_button" style="width: 33px; height: 33px;"><img class="wrs_image" alt="" src="https://www.webassign.net/mathtype/editor/resources/icons/icons.png?v=7.23.3.d46a12" draggable="false" style="margin-left: -2px; margin-top: -365px;"></button></td><td><button title="left parenthesis and right square bracket" aria-label="left parenthesis and right square bracket" class="wrs_imageContainer wrs_button" style="width: 28px; height: 28px;"><img class="wrs_image" alt="" src="http://www.webassign.net/wastatic/pads/img/mathtype/openParenCloseSquare.svg?v=7.23.3.d46a12" draggable="false" style="margin-left: 0px; margin-top: 0px;"></button></td><td><button title="Curly brackets" aria-label="Curly brackets" class="wrs_imageContainer wrs_button" style="width: 33px; height: 33px;"><img class="wrs_image" alt="" src="https://www.webassign.net/mathtype/editor/resources/icons/icons.png?v=7.23.3.d46a12" draggable="false" style="margin-left: -2px; margin-top: -464px;"></button></td><td><button title="Union" aria-label="Union" class="wrs_imageContainer wrs_button" style="width: 22px; height: 22px;"><img class="wrs_image" alt="" src="https://www.webassign.net/mathtype/editor/resources/icons/icons.png?v=7.23.3.d46a12" draggable="false" style="margin-left: -35px; margin-top: -222px;"></button></td></tr><tr><td><button title="Greater-than sign" aria-label="Greater-than sign" class="wrs_imageContainer wrs_button" style="width: 22px; height: 22px;"><img class="wrs_image" alt="" src="https://www.webassign.net/mathtype/editor/resources/icons/icons.png?v=7.23.3.d46a12" draggable="false" style="margin-left: -101px; margin-top: -200px;"></button></td><td><button title="Greater-than or equal to" aria-label="Greater-than or equal to" class="wrs_imageContainer wrs_button" style="width: 22px; height: 22px;"><img class="wrs_image" alt="" src="https://www.webassign.net/mathtype/editor/resources/icons/icons.png?v=7.23.3.d46a12" draggable="false" style="margin-left: -35px; margin-top: -46px;"></button></td><td><button title="Not equal to" aria-label="Not equal to" class="wrs_imageContainer wrs_button" style="width: 22px; height: 22px;"><img class="wrs_image" alt="" src="https://www.webassign.net/mathtype/editor/resources/icons/icons.png?v=7.23.3.d46a12" draggable="false" style="margin-left: -79px; margin-top: -2px;"></button></td><td><button title="Square brackets" aria-label="Square brackets" class="wrs_imageContainer wrs_button" style="width: 33px; height: 33px;"><img class="wrs_image" alt="" src="https://www.webassign.net/mathtype/editor/resources/icons/icons.png?v=7.23.3.d46a12" draggable="false" style="margin-left: -2px; margin-top: -431px;"></button></td><td><button title="left square bracket and right parenthesis" aria-label="left square bracket and right parenthesis" class="wrs_imageContainer wrs_button" style="width: 28px; height: 28px;"><img class="wrs_image" alt="" src="http://www.webassign.net/wastatic/pads/img/mathtype/openSquareCloseParen.svg?v=7.23.3.d46a12" draggable="false" style="margin-left: 0px; margin-top: 0px;"></button></td><td><button title="Intersection" aria-label="Intersection" class="wrs_imageContainer wrs_button" style="width: 22px; height: 22px;"><img class="wrs_image" alt="" src="https://www.webassign.net/mathtype/editor/resources/icons/icons.png?v=7.23.3.d46a12" draggable="false" style="margin-left: -35px; margin-top: -244px;"></button></td><td><button title="Empty set" aria-label="Empty set" class="wrs_imageContainer wrs_button" style="width: 22px; height: 22px;"><img class="wrs_image" alt="" src="https://www.webassign.net/mathtype/editor/resources/icons/icons.png?v=7.23.3.d46a12" draggable="false" style="margin-left: -35px; margin-top: -266px;"></button></td></tr></tbody></table><span class="wrs_line" style="display: none;"></span></div><div class="wrs_multipleRowPanel"><table class="wrs_layoutFor2Rows wrs_last"><tbody><tr><td><button title="Infinity" aria-label="Infinity" class="wrs_imageContainer wrs_button" style="width: 22px; height: 22px;"><img class="wrs_image" alt="" src="https://www.webassign.net/mathtype/editor/resources/icons/icons.png?v=7.23.3.d46a12" draggable="false" style="margin-left: -35px; margin-top: -288px;"></button></td><td><button title="Degree sign" aria-label="Degree sign" class="wrs_imageContainer wrs_button" style="width: 22px; height: 22px;"><img class="wrs_image" alt="" src="https://www.webassign.net/mathtype/editor/resources/icons/icons.png?v=7.23.3.d46a12" draggable="false" style="margin-left: -57px; margin-top: -530px;"></button></td><td><button title="Pi" aria-label="Pi" class="wrs_imageContainer wrs_button" style="width: 22px; height: 22px;"><img class="wrs_image" alt="" src="https://www.webassign.net/mathtype/editor/resources/icons/icons.png?v=7.23.3.d46a12" draggable="false" style="margin-left: -310px; margin-top: -552px;"></button></td><td><button title="No Solution" aria-label="No Solution" class="wrs_imageContainer wrs_button" style="width: 28px; height: 28px;"><img class="wrs_image" alt="" src="http://www.webassign.net/wastatic/pads/img/mathtype/noSolution.svg?v=7.23.3.d46a12" draggable="false" style="margin-left: 0px; margin-top: 0px;"></button></td></tr><tr><td><button title="Imaginary number i" aria-label="Imaginary number i" class="wrs_imageContainer wrs_button" style="width: 22px; height: 22px;"><img class="wrs_image" alt="" src="https://www.webassign.net/mathtype/editor/resources/icons/icons.png?v=7.23.3.d46a12" draggable="false" style="margin-left: -981px; margin-top: -24px;"></button></td><td><button title="Theta" aria-label="Theta" class="wrs_imageContainer wrs_button" style="width: 22px; height: 22px;"><img class="wrs_image" alt="" src="https://www.webassign.net/mathtype/editor/resources/icons/icons.png?v=7.23.3.d46a12" draggable="false" style="margin-left: -310px; margin-top: -354px;"></button></td><td><button title="Does not exist" aria-label="Does not exist" class="wrs_imageContainer wrs_button" style="width: 28px; height: 28px;"><img class="wrs_image" alt="" src="http://www.webassign.net/wastatic/pads/img/mathtype/DNE.svg?v=7.23.3.d46a12" draggable="false" style="margin-left: 0px; margin-top: 0px;"></button></td><td><button title="Undefined" aria-label="Undefined" class="wrs_imageContainer wrs_button" style="width: 52px; height: 28px;"><img class="wrs_image" alt="" src="http://www.webassign.net/wastatic/pads/img/mathtype/undefined.svg?v=7.23.3.d46a12" draggable="false" style="margin-left: 0px; margin-top: 0px;"></button></td></tr></tbody></table><span class="wrs_line" style="display: none;"></span></div><div class="wrs_multipleRowPanel"><table class="wrs_layoutFor2Rows"><tbody><tr><td><button title="sin" aria-label="sin" class="wrs_imageContainer wrs_button" style="width: 52px; height: 28px;"><img class="wrs_image" alt="" src="http://www.webassign.net/wastatic/pads/img/mathtype/sin.svg?v=7.23.3.d46a12" draggable="false" style="margin-left: 0px; margin-top: 0px;"></button></td><td><button title="cos" aria-label="cos" class="wrs_imageContainer wrs_button" style="width: 52px; height: 28px;"><img class="wrs_image" alt="" src="http://www.webassign.net/wastatic/pads/img/mathtype/cos.svg?v=7.23.3.d46a12" draggable="false" style="margin-left: 0px; margin-top: 0px;"></button></td><td><button title="tan" aria-label="tan" class="wrs_imageContainer wrs_button" style="width: 52px; height: 28px;"><img class="wrs_image" alt="" src="http://www.webassign.net/wastatic/pads/img/mathtype/tan.svg?v=7.23.3.d46a12" draggable="false" style="margin-left: 0px; margin-top: 0px;"></button></td></tr><tr><td><button title="csc" aria-label="csc" class="wrs_imageContainer wrs_button" style="width: 52px; height: 28px;"><img class="wrs_image" alt="" src="http://www.webassign.net/wastatic/pads/img/mathtype/csc.svg?v=7.23.3.d46a12" draggable="false" style="margin-left: 0px; margin-top: 0px;"></button></td><td><button title="sec" aria-label="sec" class="wrs_imageContainer wrs_button" style="width: 52px; height: 28px;"><img class="wrs_image" alt="" src="http://www.webassign.net/wastatic/pads/img/mathtype/sec.svg?v=7.23.3.d46a12" draggable="false" style="margin-left: 0px; margin-top: 0px;"></button></td><td><button title="cot" aria-label="cot" class="wrs_imageContainer wrs_button" style="width: 52px; height: 28px;"><img class="wrs_image" alt="" src="http://www.webassign.net/wastatic/pads/img/mathtype/cot.svg?v=7.23.3.d46a12" draggable="false" style="margin-left: 0px; margin-top: 0px;"></button></td></tr></tbody></table><span class="wrs_line"></span><table class="wrs_layoutFor2Rows"><tbody><tr><td><button title="arcsin" aria-label="arcsin" class="wrs_imageContainer wrs_button" style="width: 52px; height: 28px;"><img class="wrs_image" alt="" src="http://www.webassign.net/wastatic/pads/img/mathtype/arcsin.svg?v=7.23.3.d46a12" draggable="false" style="margin-left: 0px; margin-top: 0px;"></button></td><td><button title="arccos" aria-label="arccos" class="wrs_imageContainer wrs_button" style="width: 52px; height: 28px;"><img class="wrs_image" alt="" src="http://www.webassign.net/wastatic/pads/img/mathtype/arccos.svg?v=7.23.3.d46a12" draggable="false" style="margin-left: 0px; margin-top: 0px;"></button></td><td><button title="arctan" aria-label="arctan" class="wrs_imageContainer wrs_button" style="width: 52px; height: 28px;"><img class="wrs_image" alt="" src="http://www.webassign.net/wastatic/pads/img/mathtype/arctan.svg?v=7.23.3.d46a12" draggable="false" style="margin-left: 0px; margin-top: 0px;"></button></td></tr><tr><td><button title="arccsc" aria-label="arccsc" class="wrs_imageContainer wrs_button" style="width: 52px; height: 28px;"><img class="wrs_image" alt="" src="http://www.webassign.net/wastatic/pads/img/mathtype/arccsc.svg?v=7.23.3.d46a12" draggable="false" style="margin-left: 0px; margin-top: 0px;"></button></td><td><button title="arcsec" aria-label="arcsec" class="wrs_imageContainer wrs_button" style="width: 52px; height: 28px;"><img class="wrs_image" alt="" src="http://www.webassign.net/wastatic/pads/img/mathtype/arcsec.svg?v=7.23.3.d46a12" draggable="false" style="margin-left: 0px; margin-top: 0px;"></button></td><td><button title="arccot" aria-label="arccot" class="wrs_imageContainer wrs_button" style="width: 52px; height: 28px;"><img class="wrs_image" alt="" src="http://www.webassign.net/wastatic/pads/img/mathtype/arccot.svg?v=7.23.3.d46a12" draggable="false" style="margin-left: 0px; margin-top: 0px;"></button></td></tr></tbody></table><span class="wrs_line"></span><table class="wrs_layoutFor2Rows wrs_last"><tbody><tr><td><button title="sinh" aria-label="sinh" class="wrs_imageContainer wrs_button" style="width: 52px; height: 28px;"><img class="wrs_image" alt="" src="http://www.webassign.net/wastatic/pads/img/mathtype/sinh.svg?v=7.23.3.d46a12" draggable="false" style="margin-left: 0px; margin-top: 0px;"></button></td><td><button title="cosh" aria-label="cosh" class="wrs_imageContainer wrs_button" style="width: 52px; height: 28px;"><img class="wrs_image" alt="" src="http://www.webassign.net/wastatic/pads/img/mathtype/cosh.svg?v=7.23.3.d46a12" draggable="false" style="margin-left: 0px; margin-top: 0px;"></button></td><td><button title="tanh" aria-label="tanh" class="wrs_imageContainer wrs_button" style="width: 52px; height: 28px;"><img class="wrs_image" alt="" src="http://www.webassign.net/wastatic/pads/img/mathtype/tanh.svg?v=7.23.3.d46a12" draggable="false" style="margin-left: 0px; margin-top: 0px;"></button></td></tr><tr><td><button title="csch" aria-label="csch" class="wrs_imageContainer wrs_button" style="width: 52px; height: 28px;"><img class="wrs_image" alt="" src="http://www.webassign.net/wastatic/pads/img/mathtype/csch.svg?v=7.23.3.d46a12" draggable="false" style="margin-left: 0px; margin-top: 0px;"></button></td><td><button title="sech" aria-label="sech" class="wrs_imageContainer wrs_button" style="width: 52px; height: 28px;"><img class="wrs_image" alt="" src="http://www.webassign.net/wastatic/pads/img/mathtype/sech.svg?v=7.23.3.d46a12" draggable="false" style="margin-left: 0px; margin-top: 0px;"></button></td><td><button title="coth" aria-label="coth" class="wrs_imageContainer wrs_button" style="width: 52px; height: 28px;"><img class="wrs_image" alt="" src="http://www.webassign.net/wastatic/pads/img/mathtype/coth.svg?v=7.23.3.d46a12" draggable="false" style="margin-left: 0px; margin-top: 0px;"></button></td></tr></tbody></table><button class="wrs_expandButton wrs_expandButtonFor2RowsLayout" aria-haspopup="true" aria-expanded="false" title="More"></button><span class="wrs_line" style="display: none;"></span></div><div class="wrs_multipleRowPanel"><table class="wrs_layoutFor2Rows wrs_last"><tbody><tr><td><button title="Lowercase alpha" aria-label="Lowercase alpha" class="wrs_imageContainer wrs_button" style="width: 28px; height: 28px;"><img class="wrs_image" alt="" src="http://www.webassign.net/wastatic/pads/img/mathtype/alpha.svg?v=7.23.3.d46a12" draggable="false" style="margin-left: 0px; margin-top: 0px;"></button></td><td><button title="Lowercase beta" aria-label="Lowercase beta" class="wrs_imageContainer wrs_button" style="width: 28px; height: 28px;"><img class="wrs_image" alt="" src="http://www.webassign.net/wastatic/pads/img/mathtype/beta.svg?v=7.23.3.d46a12" draggable="false" style="margin-left: 0px; margin-top: 0px;"></button></td><td><button title="Lowercase gamma" aria-label="Lowercase gamma" class="wrs_imageContainer wrs_button" style="width: 28px; height: 28px;"><img class="wrs_image" alt="" src="http://www.webassign.net/wastatic/pads/img/mathtype/gamma.svg?v=7.23.3.d46a12" draggable="false" style="margin-left: 0px; margin-top: 0px;"></button></td><td><button title="Lowercase delta" aria-label="Lowercase delta" class="wrs_imageContainer wrs_button" style="width: 28px; height: 28px;"><img class="wrs_image" alt="" src="http://www.webassign.net/wastatic/pads/img/mathtype/delta.svg?v=7.23.3.d46a12" draggable="false" style="margin-left: 0px; margin-top: 0px;"></button></td><td><button title="Lowercase epsilon" aria-label="Lowercase epsilon" class="wrs_imageContainer wrs_button" style="width: 28px; height: 28px;"><img class="wrs_image" alt="" src="http://www.webassign.net/wastatic/pads/img/mathtype/epsilon.svg?v=7.23.3.d46a12" draggable="false" style="margin-left: 0px; margin-top: 0px;"></button></td><td><button title="Lowercase zeta" aria-label="Lowercase zeta" class="wrs_imageContainer wrs_button" style="width: 28px; height: 28px;"><img class="wrs_image" alt="" src="http://www.webassign.net/wastatic/pads/img/mathtype/zeta.svg?v=7.23.3.d46a12" draggable="false" style="margin-left: 0px; margin-top: 0px;"></button></td><td><button title="Lowercase eta" aria-label="Lowercase eta" class="wrs_imageContainer wrs_button" style="width: 28px; height: 28px;"><img class="wrs_image" alt="" src="http://www.webassign.net/wastatic/pads/img/mathtype/eta.svg?v=7.23.3.d46a12" draggable="false" style="margin-left: 0px; margin-top: 0px;"></button></td><td><button title="Lowercase theta" aria-label="Lowercase theta" class="wrs_imageContainer wrs_button" style="width: 28px; height: 28px;"><img class="wrs_image" alt="" src="http://www.webassign.net/wastatic/pads/img/mathtype/theta.svg?v=7.23.3.d46a12" draggable="false" style="margin-left: 0px; margin-top: 0px;"></button></td><td><button title="Lowercase iota" aria-label="Lowercase iota" class="wrs_imageContainer wrs_button" style="width: 28px; height: 28px;"><img class="wrs_image" alt="" src="http://www.webassign.net/wastatic/pads/img/mathtype/iota.svg?v=7.23.3.d46a12" draggable="false" style="margin-left: 0px; margin-top: 0px;"></button></td><td><button title="Lowercase kappa" aria-label="Lowercase kappa" class="wrs_imageContainer wrs_button" style="width: 28px; height: 28px;"><img class="wrs_image" alt="" src="http://www.webassign.net/wastatic/pads/img/mathtype/kappa.svg?v=7.23.3.d46a12" draggable="false" style="margin-left: 0px; margin-top: 0px;"></button></td><td><button title="Lowercase lambda" aria-label="Lowercase lambda" class="wrs_imageContainer wrs_button" style="width: 28px; height: 28px;"><img class="wrs_image" alt="" src="http://www.webassign.net/wastatic/pads/img/mathtype/lambda.svg?v=7.23.3.d46a12" draggable="false" style="margin-left: 0px; margin-top: 0px;"></button></td><td><button title="Lowercase mu" aria-label="Lowercase mu" class="wrs_imageContainer wrs_button" style="width: 28px; height: 28px;"><img class="wrs_image" alt="" src="http://www.webassign.net/wastatic/pads/img/mathtype/mu.svg?v=7.23.3.d46a12" draggable="false" style="margin-left: 0px; margin-top: 0px;"></button></td></tr><tr><td><button title="Lowercase nu" aria-label="Lowercase nu" class="wrs_imageContainer wrs_button" style="width: 28px; height: 28px;"><img class="wrs_image" alt="" src="http://www.webassign.net/wastatic/pads/img/mathtype/nu.svg?v=7.23.3.d46a12" draggable="false" style="margin-left: 0px; margin-top: 0px;"></button></td><td><button title="Lowercase xi" aria-label="Lowercase xi" class="wrs_imageContainer wrs_button" style="width: 28px; height: 28px;"><img class="wrs_image" alt="" src="http://www.webassign.net/wastatic/pads/img/mathtype/xi.svg?v=7.23.3.d46a12" draggable="false" style="margin-left: 0px; margin-top: 0px;"></button></td><td><button title="Lowercase omicron" aria-label="Lowercase omicron" class="wrs_imageContainer wrs_button" style="width: 28px; height: 28px;"><img class="wrs_image" alt="" src="http://www.webassign.net/wastatic/pads/img/mathtype/omicron.svg?v=7.23.3.d46a12" draggable="false" style="margin-left: 0px; margin-top: 0px;"></button></td><td><button title="Lowercase pi" aria-label="Lowercase pi" class="wrs_imageContainer wrs_button" style="width: 28px; height: 28px;"><img class="wrs_image" alt="" src="http://www.webassign.net/wastatic/pads/img/mathtype/pi.svg?v=7.23.3.d46a12" draggable="false" style="margin-left: 0px; margin-top: 0px;"></button></td><td><button title="Lowercase rho" aria-label="Lowercase rho" class="wrs_imageContainer wrs_button" style="width: 28px; height: 28px;"><img class="wrs_image" alt="" src="http://www.webassign.net/wastatic/pads/img/mathtype/rho.svg?v=7.23.3.d46a12" draggable="false" style="margin-left: 0px; margin-top: 0px;"></button></td><td><button title="Lowercase sigma" aria-label="Lowercase sigma" class="wrs_imageContainer wrs_button" style="width: 28px; height: 28px;"><img class="wrs_image" alt="" src="http://www.webassign.net/wastatic/pads/img/mathtype/sigma.svg?v=7.23.3.d46a12" draggable="false" style="margin-left: 0px; margin-top: 0px;"></button></td><td><button title="Lowercase tau" aria-label="Lowercase tau" class="wrs_imageContainer wrs_button" style="width: 28px; height: 28px;"><img class="wrs_image" alt="" src="http://www.webassign.net/wastatic/pads/img/mathtype/tau.svg?v=7.23.3.d46a12" draggable="false" style="margin-left: 0px; margin-top: 0px;"></button></td><td><button title="Lowercase upsilon" aria-label="Lowercase upsilon" class="wrs_imageContainer wrs_button" style="width: 28px; height: 28px;"><img class="wrs_image" alt="" src="http://www.webassign.net/wastatic/pads/img/mathtype/upsilon.svg?v=7.23.3.d46a12" draggable="false" style="margin-left: 0px; margin-top: 0px;"></button></td><td><button title="Lowercase phi" aria-label="Lowercase phi" class="wrs_imageContainer wrs_button" style="width: 28px; height: 28px;"><img class="wrs_image" alt="" src="http://www.webassign.net/wastatic/pads/img/mathtype/phi.svg?v=7.23.3.d46a12" draggable="false" style="margin-left: 0px; margin-top: 0px;"></button></td><td><button title="Lowercase chi" aria-label="Lowercase chi" class="wrs_imageContainer wrs_button" style="width: 28px; height: 28px;"><img class="wrs_image" alt="" src="http://www.webassign.net/wastatic/pads/img/mathtype/chi.svg?v=7.23.3.d46a12" draggable="false" style="margin-left: 0px; margin-top: 0px;"></button></td><td><button title="Lowercase psi" aria-label="Lowercase psi" class="wrs_imageContainer wrs_button" style="width: 28px; height: 28px;"><img class="wrs_image" alt="" src="http://www.webassign.net/wastatic/pads/img/mathtype/psi.svg?v=7.23.3.d46a12" draggable="false" style="margin-left: 0px; margin-top: 0px;"></button></td><td><button title="Lowercase omega" aria-label="Lowercase omega" class="wrs_imageContainer wrs_button" style="width: 28px; height: 28px;"><img class="wrs_image" alt="" src="http://www.webassign.net/wastatic/pads/img/mathtype/omega.svg?v=7.23.3.d46a12" draggable="false" style="margin-left: 0px; margin-top: 0px;"></button></td></tr></tbody></table><button class="wrs_expandButton wrs_expandButtonFor2RowsLayout" aria-haspopup="true" aria-expanded="false" title="More"></button><span class="wrs_line" style="display: none;"></span></div><div class="wrs_multipleRowPanel"><table class="wrs_layoutFor2Rows wrs_last"><tbody><tr><td><button title="Angle brackets" aria-label="Angle brackets" class="wrs_imageContainer wrs_button" style="width: 33px; height: 33px;"><img class="wrs_image" alt="" src="https://www.webassign.net/mathtype/editor/resources/icons/icons.png?v=7.23.3.d46a12" draggable="false" style="margin-left: -750px; margin-top: -101px;"></button></td><td><button title="Arrow accent" aria-label="Arrow accent" class="wrs_imageContainer wrs_button" style="width: 33px; height: 33px;"><img class="wrs_image" alt="" src="https://www.webassign.net/mathtype/editor/resources/icons/icons.png?v=7.23.3.d46a12" draggable="false" style="margin-left: -277px; margin-top: -101px;"></button></td><td><button title="Bold (Ctrl+B)" aria-label="Bold (Ctrl+B)" class="wrs_imageContainer wrs_button" style="width: 22px; height: 22px;"><img class="wrs_image" alt="" src="https://www.webassign.net/mathtype/editor/resources/icons/icons.png?v=7.23.3.d46a12" draggable="false" style="margin-left: -35px; margin-top: -442px;"></button></td><td><button title="Bold j" aria-label="Bold j" class="wrs_imageContainer wrs_button" style="width: 28px; height: 28px;"><img class="wrs_image" alt="" src="http://www.webassign.net/wastatic/pads/img/mathtype/boldJ.svg?v=7.23.3.d46a12" draggable="false" style="margin-left: 0px; margin-top: 0px;"></button></td></tr><tr><td><button title="Hat accent" aria-label="Hat accent" class="wrs_imageContainer wrs_button" style="width: 22px; height: 22px;"><img class="wrs_image" alt="" src="https://www.webassign.net/mathtype/editor/resources/icons/icons.png?v=7.23.3.d46a12" draggable="false" style="margin-left: -750px; margin-top: -497px;"></button></td><td><button title="Vector accent" aria-label="Vector accent" class="wrs_imageContainer wrs_button" style="width: 33px; height: 33px;"><img class="wrs_image" alt="" src="https://www.webassign.net/mathtype/editor/resources/icons/icons.png?v=7.23.3.d46a12" draggable="false" style="margin-left: -277px; margin-top: -68px;"></button></td><td><button title="Bold i" aria-label="Bold i" class="wrs_imageContainer wrs_button" style="width: 28px; height: 28px;"><img class="wrs_image" alt="" src="http://www.webassign.net/wastatic/pads/img/mathtype/boldI.svg?v=7.23.3.d46a12" draggable="false" style="margin-left: 0px; margin-top: 0px;"></button></td><td><button title="Bold k" aria-label="Bold k" class="wrs_imageContainer wrs_button" style="width: 28px; height: 28px;"><img class="wrs_image" alt="" src="http://www.webassign.net/wastatic/pads/img/mathtype/boldK.svg?v=7.23.3.d46a12" draggable="false" style="margin-left: 0px; margin-top: 0px;"></button></td></tr></tbody></table><span class="wrs_line" style="display: none;"></span></div><div class="wrs_multipleRowPanel"><table class="wrs_layoutFor2Rows" style="display: none;"><tbody><tr><td><button title="Nudge up" aria-label="Nudge up" class="wrs_imageContainer wrs_button" style="width: 33px; height: 33px;"><img class="wrs_image" alt="" src="https://www.webassign.net/mathtype/editor/resources/icons/icons.png?v=7.23.3.d46a12" draggable="false" style="margin-left: -1080px; margin-top: -156px;"></button></td><td><button title="Nudge right" aria-label="Nudge right" class="wrs_imageContainer wrs_button" style="width: 33px; height: 33px;"><img class="wrs_image" alt="" src="https://www.webassign.net/mathtype/editor/resources/icons/icons.png?v=7.23.3.d46a12" draggable="false" style="margin-left: -1080px; margin-top: -222px;"></button></td></tr><tr><td><button title="Nudge left" aria-label="Nudge left" class="wrs_imageContainer wrs_button" style="width: 33px; height: 33px;"><img class="wrs_image" alt="" src="https://www.webassign.net/mathtype/editor/resources/icons/icons.png?v=7.23.3.d46a12" draggable="false" style="margin-left: -1080px; margin-top: -189px;"></button></td><td><button title="Nudge down" aria-label="Nudge down" class="wrs_imageContainer wrs_button" style="width: 33px; height: 33px;"><img class="wrs_image" alt="" src="https://www.webassign.net/mathtype/editor/resources/icons/icons.png?v=7.23.3.d46a12" draggable="false" style="margin-left: -1080px; margin-top: -255px;"></button></td></tr></tbody></table><span class="wrs_line" style="display: none;"></span><table class="wrs_layoutFor1Rows" style="display: none;"><tbody><tr><td><button title="Merge/unmerge separators in &lt;mn&gt;" aria-label="Merge/unmerge separators in &lt;mn&gt;" class="wrs_imageContainer wrs_button" style="width: 33px; height: 33px;"><img class="wrs_image" alt="" src="https://www.webassign.net/mathtype/editor/resources/icons/icons.png?v=7.23.3.d46a12" draggable="false" style="margin-left: -1080px; margin-top: -288px;"></button></td></tr></tbody></table><span class="wrs_line" style="display: none;"></span><table class="wrs_layoutFor2Rows" style="display: none;"><tbody><tr><td><div class="wrs_select"><select title="setOpenBracket" aria-label="setOpenBracket"><option value=""></option><option value="(">(</option><option value=")">)</option><option value="[">[</option><option value="]">]</option><option value="⟨">⟨</option><option value="⟩">⟩</option><option value="{">{</option><option value="}">}</option><option value="⌊">⌊</option><option value="⌋">⌋</option><option value="⌈">⌈</option><option value="⌉">⌉</option><option value="⟦">⟦</option><option value="⟧">⟧</option><option value="|">|</option><option value="‖">||</option></select><div class="wrs_label" aria-hidden="true"></div></div></td><td><div class="wrs_select"><select title="setCloseBracket" aria-label="setCloseBracket"><option value=""></option><option value="(">(</option><option value=")">)</option><option value="[">[</option><option value="]">]</option><option value="⟨">⟨</option><option value="⟩">⟩</option><option value="{">{</option><option value="}">}</option><option value="⌊">⌊</option><option value="⌋">⌋</option><option value="⌈">⌈</option><option value="⌉">⌉</option><option value="⟦">⟦</option><option value="⟧">⟧</option><option value="|">|</option><option value="‖">||</option></select><div class="wrs_label" aria-hidden="true"></div></div></td></tr><tr><td><div class="wrs_empty"></div></td><td><div class="wrs_select"><select title="setSeparator" aria-label="setSeparator"><option value=",">,</option><option value=".">.</option><option value=";">;</option><option value=":">:</option><option value="&nbsp;">␣</option></select><div class="wrs_label" aria-hidden="true">,</div></div></td></tr></tbody></table><span class="wrs_line" style="display: none;"></span><table class="wrs_layoutFor2Rows" style="display: none;"><tbody><tr><td><button title="Baseline" aria-label="Baseline" class="wrs_imageContainer wrs_button" style="width: 33px; height: 33px;"><img class="wrs_image" alt="" src="https://www.webassign.net/mathtype/editor/resources/icons/icons.png?v=7.23.3.d46a12" draggable="false" style="margin-left: -1080px; margin-top: -354px;"></button></td><td><button title="Middle" aria-label="Middle" class="wrs_imageContainer wrs_button" style="width: 33px; height: 33px;"><img class="wrs_image" alt="" src="https://www.webassign.net/mathtype/editor/resources/icons/icons.png?v=7.23.3.d46a12" draggable="false" style="margin-left: -1080px; margin-top: -420px;"></button></td></tr><tr><td><button title="Middle-baseline" aria-label="Middle-baseline" class="wrs_imageContainer wrs_button" style="width: 33px; height: 33px;"><img class="wrs_image" alt="" src="https://www.webassign.net/mathtype/editor/resources/icons/icons.png?v=7.23.3.d46a12" draggable="false" style="margin-left: -1080px; margin-top: -387px;"></button></td><td><div class="wrs_empty"></div></td></tr></tbody></table><span class="wrs_line" style="display: none;"></span><table class="wrs_layoutFor3Rows" style="display: none;"><tbody><tr><td><button class="wrs_imageContainer wrs_button wrs_lengthButton" title="Left spacing" aria-label="Left spacing" style="width: 22px; height: 22px;"><img class="wrs_image" alt="" src="https://www.webassign.net/mathtype/editor/resources/icons/icons.png?v=7.23.3.d46a12" draggable="false" style="margin-left: -1080px; margin-top: -453px;"></button></td></tr><tr><td><button class="wrs_imageContainer wrs_button wrs_lengthButton" title="Right spacing" aria-label="Right spacing" style="width: 22px; height: 22px;"><img class="wrs_image" alt="" src="https://www.webassign.net/mathtype/editor/resources/icons/icons.png?v=7.23.3.d46a12" draggable="false" style="margin-left: -1080px; margin-top: -475px;"></button></td></tr><tr><td><div class="wrs_empty"></div></td></tr></tbody></table><span class="wrs_line" style="display: none;"></span><table class="wrs_layoutFor3Rows" style="display: none;"><tbody><tr><td><button title="Stretchy" aria-label="Stretchy" class="wrs_imageContainer wrs_button" style="width: 22px; height: 22px;"><img class="wrs_image" alt="" src="https://www.webassign.net/mathtype/editor/resources/icons/icons.png?v=7.23.3.d46a12" draggable="false" style="margin-left: -1080px; margin-top: -497px;"></button></td></tr><tr><td><div class="wrs_empty"></div></td></tr><tr><td><div class="wrs_empty"></div></td></tr></tbody></table><span class="wrs_line" style="display: none;"></span><table class="wrs_layoutFor3Rows" style="display: none;"><tbody><tr><td><button class="wrs_imageContainer wrs_button wrs_lengthButton" title="Space width" aria-label="Space width" style="width: 22px; height: 22px;"><img class="wrs_image" alt="" src="https://www.webassign.net/mathtype/editor/resources/icons/icons.png?v=7.23.3.d46a12" draggable="false" style="margin-left: -1080px; margin-top: -519px;"></button></td></tr><tr><td><button class="wrs_imageContainer wrs_button wrs_lengthButton" title="Space height" aria-label="Space height" style="width: 22px; height: 22px;"><img class="wrs_image" alt="" src="https://www.webassign.net/mathtype/editor/resources/icons/icons.png?v=7.23.3.d46a12" draggable="false" style="margin-left: -1080px; margin-top: -541px;"></button></td></tr><tr><td><button class="wrs_imageContainer wrs_button wrs_lengthButton" title="Space depth" aria-label="Space depth" style="width: 22px; height: 22px;"><img class="wrs_image" alt="" src="https://www.webassign.net/mathtype/editor/resources/icons/icons.png?v=7.23.3.d46a12" draggable="false" style="margin-left: -1080px; margin-top: -563px;"></button></td></tr></tbody></table><span class="wrs_line" style="display: none;"></span><table class="wrs_layoutFor3Rows" style="display: none;"><tbody><tr><td><button title="Align left" aria-label="Align left" class="wrs_imageContainer wrs_button wrs_toggled wrs_disabled" aria-disabled="true" style="width: 22px; height: 22px;"><img class="wrs_image" alt="" src="https://www.webassign.net/mathtype/editor/resources/icons/icons.png?v=7.23.3.d46a12" draggable="false" style="margin-left: -1113px; margin-top: -2px;"></button></td><td><button title="Relation align" aria-label="Relation align" class="wrs_imageContainer wrs_button wrs_disabled" aria-disabled="true" style="width: 22px; height: 22px;"><img class="wrs_image" alt="" src="https://www.webassign.net/mathtype/editor/resources/icons/icons.png?v=7.23.3.d46a12" draggable="false" style="margin-left: -1113px; margin-top: -68px;"></button></td></tr><tr><td><button title="Align center" aria-label="Align center" class="wrs_imageContainer wrs_button wrs_disabled" aria-disabled="true" style="width: 22px; height: 22px;"><img class="wrs_image" alt="" src="https://www.webassign.net/mathtype/editor/resources/icons/icons.png?v=7.23.3.d46a12" draggable="false" style="margin-left: -1113px; margin-top: -24px;"></button></td><td><div class="wrs_empty"></div></td></tr><tr><td><button title="Align right" aria-label="Align right" class="wrs_imageContainer wrs_button wrs_disabled" aria-disabled="true" style="width: 22px; height: 22px;"><img class="wrs_image" alt="" src="https://www.webassign.net/mathtype/editor/resources/icons/icons.png?v=7.23.3.d46a12" draggable="false" style="margin-left: -1113px; margin-top: -46px;"></button></td><td><div class="wrs_empty"></div></td></tr></tbody></table><span class="wrs_line" style="display: none;"></span><table class="wrs_layoutFor3Rows" style="display: none;"><tbody><tr><td><button title="Align with axis" aria-label="Align with axis" class="wrs_imageContainer wrs_button" style="width: 22px; height: 22px;"><img class="wrs_image" alt="" src="https://www.webassign.net/mathtype/editor/resources/icons/icons.png?v=7.23.3.d46a12" draggable="false" style="margin-left: -1113px; margin-top: -90px;"></button></td><td><button title="Align with top" aria-label="Align with top" class="wrs_imageContainer wrs_button" style="width: 22px; height: 22px;"><img class="wrs_image" alt="" src="https://www.webassign.net/mathtype/editor/resources/icons/icons.png?v=7.23.3.d46a12" draggable="false" style="margin-left: -1113px; margin-top: -156px;"></button></td></tr><tr><td><button title="Align with baseline" aria-label="Align with baseline" class="wrs_imageContainer wrs_button" style="width: 22px; height: 22px;"><img class="wrs_image" alt="" src="https://www.webassign.net/mathtype/editor/resources/icons/icons.png?v=7.23.3.d46a12" draggable="false" style="margin-left: -1113px; margin-top: -112px;"></button></td><td><button title="Align with center" aria-label="Align with center" class="wrs_imageContainer wrs_button" style="width: 22px; height: 22px;"><img class="wrs_image" alt="" src="https://www.webassign.net/mathtype/editor/resources/icons/icons.png?v=7.23.3.d46a12" draggable="false" style="margin-left: -1113px; margin-top: -178px;"></button></td></tr><tr><td><button title="Align to row" aria-label="Align to row" class="wrs_imageContainer wrs_button" style="width: 22px; height: 22px;"><img class="wrs_image" alt="" src="https://www.webassign.net/mathtype/editor/resources/icons/icons.png?v=7.23.3.d46a12" draggable="false" style="margin-left: -1113px; margin-top: -134px;"></button></td><td><button title="Align with bottom" aria-label="Align with bottom" class="wrs_imageContainer wrs_button" style="width: 22px; height: 22px;"><img class="wrs_image" alt="" src="https://www.webassign.net/mathtype/editor/resources/icons/icons.png?v=7.23.3.d46a12" draggable="false" style="margin-left: -1113px; margin-top: -200px;"></button></td></tr></tbody></table><span class="wrs_line" style="display: none;"></span><table class="wrs_layoutFor3Rows" style="display: none;"><tbody><tr><td><button title="Insert row below" aria-label="Insert row below" class="wrs_imageContainer wrs_button wrs_disabled" aria-disabled="true" style="width: 22px; height: 22px;"><img class="wrs_image" alt="" src="https://www.webassign.net/mathtype/editor/resources/icons/icons.png?v=7.23.3.d46a12" draggable="false" style="margin-left: -1113px; margin-top: -222px;"></button></td><td><button title="Insert row above" aria-label="Insert row above" class="wrs_imageContainer wrs_button wrs_disabled" aria-disabled="true" style="width: 22px; height: 22px;"><img class="wrs_image" alt="" src="https://www.webassign.net/mathtype/editor/resources/icons/icons.png?v=7.23.3.d46a12" draggable="false" style="margin-left: -1113px; margin-top: -244px;"></button></td></tr><tr><td><button title="Insert column at right" aria-label="Insert column at right" class="wrs_imageContainer wrs_button wrs_disabled" aria-disabled="true" style="width: 22px; height: 22px;"><img class="wrs_image" alt="" src="https://www.webassign.net/mathtype/editor/resources/icons/icons.png?v=7.23.3.d46a12" draggable="false" style="margin-left: -1113px; margin-top: -266px;"></button></td><td><button title="Insert column at left" aria-label="Insert column at left" class="wrs_imageContainer wrs_button wrs_disabled" aria-disabled="true" style="width: 22px; height: 22px;"><img class="wrs_image" alt="" src="https://www.webassign.net/mathtype/editor/resources/icons/icons.png?v=7.23.3.d46a12" draggable="false" style="margin-left: -1113px; margin-top: -288px;"></button></td></tr><tr><td><button title="Remove row" aria-label="Remove row" class="wrs_imageContainer wrs_button wrs_disabled" aria-disabled="true" style="width: 22px; height: 22px;"><img class="wrs_image" alt="" src="https://www.webassign.net/mathtype/editor/resources/icons/icons.png?v=7.23.3.d46a12" draggable="false" style="margin-left: -1113px; margin-top: -310px;"></button></td><td><button title="Remove column" aria-label="Remove column" class="wrs_imageContainer wrs_button wrs_disabled" aria-disabled="true" style="width: 22px; height: 22px;"><img class="wrs_image" alt="" src="https://www.webassign.net/mathtype/editor/resources/icons/icons.png?v=7.23.3.d46a12" draggable="false" style="margin-left: -1113px; margin-top: -332px;"></button></td></tr></tbody></table><span class="wrs_line" style="display: none;"></span><table class="wrs_layoutFor3Rows" style="display: none;"><tbody><tr><td><button title="Insert frame" aria-label="Insert frame" class="wrs_imageContainer wrs_button wrs_disabled" aria-disabled="true" style="width: 22px; height: 22px;"><img class="wrs_image" alt="" src="https://www.webassign.net/mathtype/editor/resources/icons/icons.png?v=7.23.3.d46a12" draggable="false" style="margin-left: -1113px; margin-top: -354px;"></button></td><td><button title="Remove frame" aria-label="Remove frame" class="wrs_imageContainer wrs_button wrs_disabled" aria-disabled="true" style="width: 22px; height: 22px;"><img class="wrs_image" alt="" src="https://www.webassign.net/mathtype/editor/resources/icons/icons.png?v=7.23.3.d46a12" draggable="false" style="margin-left: -1113px; margin-top: -376px;"></button></td><td><button title="Activate solid lines" aria-label="Activate solid lines" class="wrs_imageContainer wrs_button wrs_disabled" aria-disabled="true" style="width: 22px; height: 22px;"><img class="wrs_image" alt="" src="https://www.webassign.net/mathtype/editor/resources/icons/icons.png?v=7.23.3.d46a12" draggable="false" style="margin-left: -1113px; margin-top: -398px;"></button></td></tr><tr><td><button title="Insert line below" aria-label="Insert line below" class="wrs_imageContainer wrs_button wrs_disabled" aria-disabled="true" style="width: 22px; height: 22px;"><img class="wrs_image" alt="" src="https://www.webassign.net/mathtype/editor/resources/icons/icons.png?v=7.23.3.d46a12" draggable="false" style="margin-left: -1113px; margin-top: -420px;"></button></td><td><button title="Insert right line" aria-label="Insert right line" class="wrs_imageContainer wrs_button wrs_disabled" aria-disabled="true" style="width: 22px; height: 22px;"><img class="wrs_image" alt="" src="https://www.webassign.net/mathtype/editor/resources/icons/icons.png?v=7.23.3.d46a12" draggable="false" style="margin-left: -1113px; margin-top: -442px;"></button></td><td><button title="Activate dash lines" aria-label="Activate dash lines" class="wrs_imageContainer wrs_button wrs_disabled" aria-disabled="true" style="width: 22px; height: 22px;"><img class="wrs_image" alt="" src="https://www.webassign.net/mathtype/editor/resources/icons/icons.png?v=7.23.3.d46a12" draggable="false" style="margin-left: -1113px; margin-top: -464px;"></button></td></tr><tr><td><button title="Remove line below" aria-label="Remove line below" class="wrs_imageContainer wrs_button wrs_disabled" aria-disabled="true" style="width: 22px; height: 22px;"><img class="wrs_image" alt="" src="https://www.webassign.net/mathtype/editor/resources/icons/icons.png?v=7.23.3.d46a12" draggable="false" style="margin-left: -1113px; margin-top: -486px;"></button></td><td><button title="Remove right line" aria-label="Remove right line" class="wrs_imageContainer wrs_button wrs_disabled" aria-disabled="true" style="width: 22px; height: 22px;"><img class="wrs_image" alt="" src="https://www.webassign.net/mathtype/editor/resources/icons/icons.png?v=7.23.3.d46a12" draggable="false" style="margin-left: -1113px; margin-top: -508px;"></button></td><td><div class="wrs_empty"></div></td></tr></tbody></table><span class="wrs_line" style="display: none;"></span><table class="wrs_layoutFor3Rows" style="display: none;"><tbody><tr><td><button title="Align left" aria-label="Align left" class="wrs_imageContainer wrs_button wrs_toggled wrs_disabled" aria-disabled="true" style="width: 22px; height: 22px;"><img class="wrs_image" alt="" src="https://www.webassign.net/mathtype/editor/resources/icons/icons.png?v=7.23.3.d46a12" draggable="false" style="margin-left: -1113px; margin-top: -2px;"></button></td><td><button title="Align center" aria-label="Align center" class="wrs_imageContainer wrs_button wrs_disabled" aria-disabled="true" style="width: 22px; height: 22px;"><img class="wrs_image" alt="" src="https://www.webassign.net/mathtype/editor/resources/icons/icons.png?v=7.23.3.d46a12" draggable="false" style="margin-left: -1113px; margin-top: -24px;"></button></td><td><button title="Align right" aria-label="Align right" class="wrs_imageContainer wrs_button wrs_disabled" aria-disabled="true" style="width: 22px; height: 22px;"><img class="wrs_image" alt="" src="https://www.webassign.net/mathtype/editor/resources/icons/icons.png?v=7.23.3.d46a12" draggable="false" style="margin-left: -1113px; margin-top: -46px;"></button></td><td><button title="Decimal align" aria-label="Decimal align" class="wrs_imageContainer wrs_button wrs_disabled" aria-disabled="true" style="width: 22px; height: 22px;"><img class="wrs_image" alt="" src="https://www.webassign.net/mathtype/editor/resources/icons/icons.png?v=7.23.3.d46a12" draggable="false" style="margin-left: -1135px; margin-top: -46px;"></button></td><td><div class="wrs_select"><select title="Decimal align symbol" aria-label="Decimal align symbol"><option value="dot">0.0</option><option value="comma">0,0</option><option value="apostrophe">0'0</option><option value="space">0 0</option></select><div class="wrs_label" aria-hidden="true">0.0</div></div></td></tr><tr><td><button title="Align rows to top" aria-label="Align rows to top" class="wrs_imageContainer wrs_button wrs_disabled" aria-disabled="true" style="width: 22px; height: 22px;"><img class="wrs_image" alt="" src="https://www.webassign.net/mathtype/editor/resources/icons/icons.png?v=7.23.3.d46a12" draggable="false" style="margin-left: -1113px; margin-top: -530px;"></button></td><td><button title="Align rows to center" aria-label="Align rows to center" class="wrs_imageContainer wrs_button wrs_disabled" aria-disabled="true" style="width: 22px; height: 22px;"><img class="wrs_image" alt="" src="https://www.webassign.net/mathtype/editor/resources/icons/icons.png?v=7.23.3.d46a12" draggable="false" style="margin-left: -1113px; margin-top: -574px;"></button></td><td><button title="Align rows to bottom" aria-label="Align rows to bottom" class="wrs_imageContainer wrs_button wrs_disabled" aria-disabled="true" style="width: 22px; height: 22px;"><img class="wrs_image" alt="" src="https://www.webassign.net/mathtype/editor/resources/icons/icons.png?v=7.23.3.d46a12" draggable="false" style="margin-left: -1135px; margin-top: -24px;"></button></td><td><button title="Relation align" aria-label="Relation align" class="wrs_imageContainer wrs_button wrs_disabled" aria-disabled="true" style="width: 22px; height: 22px;"><img class="wrs_image" alt="" src="https://www.webassign.net/mathtype/editor/resources/icons/icons.png?v=7.23.3.d46a12" draggable="false" style="margin-left: -1113px; margin-top: -68px;"></button></td><td><div class="wrs_empty"></div></td></tr><tr><td><button title="Align rows to baseline" aria-label="Align rows to baseline" class="wrs_imageContainer wrs_button wrs_disabled" aria-disabled="true" style="width: 22px; height: 22px;"><img class="wrs_image" alt="" src="https://www.webassign.net/mathtype/editor/resources/icons/icons.png?v=7.23.3.d46a12" draggable="false" style="margin-left: -1113px; margin-top: -552px;"></button></td><td><button title="Align rows to axis" aria-label="Align rows to axis" class="wrs_imageContainer wrs_button wrs_disabled" aria-disabled="true" style="width: 22px; height: 22px;"><img class="wrs_image" alt="" src="https://www.webassign.net/mathtype/editor/resources/icons/icons.png?v=7.23.3.d46a12" draggable="false" style="margin-left: -1135px; margin-top: -2px;"></button></td><td><div class="wrs_empty"></div></td><td><div class="wrs_empty"></div></td><td><div class="wrs_empty"></div></td></tr></tbody></table><span class="wrs_line" style="display: none;"></span><table class="wrs_layoutFor3Rows" style="display: none;"><tbody><tr><td><button title="Force equal row heights" aria-label="Force equal row heights" class="wrs_imageContainer wrs_button wrs_disabled" aria-disabled="true" style="width: 22px; height: 22px;"><img class="wrs_image" alt="" src="https://www.webassign.net/mathtype/editor/resources/icons/icons.png?v=7.23.3.d46a12" draggable="false" style="margin-left: -1135px; margin-top: -68px;"></button></td></tr><tr><td><button title="Force equal column widths" aria-label="Force equal column widths" class="wrs_imageContainer wrs_button wrs_disabled" aria-disabled="true" style="width: 22px; height: 22px;"><img class="wrs_image" alt="" src="https://www.webassign.net/mathtype/editor/resources/icons/icons.png?v=7.23.3.d46a12" draggable="false" style="margin-left: -1135px; margin-top: -90px;"></button></td></tr><tr><td><div class="wrs_empty"></div></td></tr></tbody></table><span class="wrs_line" style="display: none;"></span><table class="wrs_layoutFor3Rows" style="display: none;"><tbody><tr><td><button class="wrs_imageContainer wrs_button wrs_lengthButton wrs_disabled" title="Column spacing at right" aria-label="Column spacing at right" aria-disabled="true" style="width: 22px; height: 22px;"><img class="wrs_image" alt="" src="https://www.webassign.net/mathtype/editor/resources/icons/icons.png?v=7.23.3.d46a12" draggable="false" style="margin-left: -1135px; margin-top: -112px;"></button></td><td><button class="wrs_imageContainer wrs_button wrs_lengthButton wrs_disabled" title="Horizontal frame spacing" aria-label="Horizontal frame spacing" aria-disabled="true" style="width: 22px; height: 22px;"><img class="wrs_image" alt="" src="https://www.webassign.net/mathtype/editor/resources/icons/icons.png?v=7.23.3.d46a12" draggable="false" style="margin-left: -1135px; margin-top: -156px;"></button></td></tr><tr><td><button class="wrs_imageContainer wrs_button wrs_lengthButton wrs_disabled" title="Row spacing below" aria-label="Row spacing below" aria-disabled="true" style="width: 22px; height: 22px;"><img class="wrs_image" alt="" src="https://www.webassign.net/mathtype/editor/resources/icons/icons.png?v=7.23.3.d46a12" draggable="false" style="margin-left: -1135px; margin-top: -134px;"></button></td><td><button class="wrs_imageContainer wrs_button wrs_lengthButton wrs_disabled" title="Vertical frame spacing" aria-label="Vertical frame spacing" aria-disabled="true" style="width: 22px; height: 22px;"><img class="wrs_image" alt="" src="https://www.webassign.net/mathtype/editor/resources/icons/icons.png?v=7.23.3.d46a12" draggable="false" style="margin-left: -1135px; margin-top: -178px;"></button></td></tr><tr><td><div class="wrs_empty"></div></td><td><div class="wrs_empty"></div></td></tr></tbody></table><span class="wrs_line" style="display: none;"></span><table class="wrs_layoutFor2Rows" style="display: none;"><tbody><tr><td><button title="Insert line" aria-label="Insert line" class="wrs_imageContainer wrs_button" style="width: 33px; height: 33px;"><img class="wrs_image" alt="" src="https://www.webassign.net/mathtype/editor/resources/icons/icons.png?v=7.23.3.d46a12" draggable="false" style="margin-left: -1135px; margin-top: -200px;"></button></td><td><button title="Join the selected digits in a single column" aria-label="Join the selected digits in a single column" class="wrs_imageContainer wrs_button" style="width: 33px; height: 33px;"><img class="wrs_image" alt="" src="https://www.webassign.net/mathtype/editor/resources/icons/icons.png?v=7.23.3.d46a12" draggable="false" style="margin-left: -1135px; margin-top: -266px;"></button></td></tr><tr><td><button title="Up diagonal strike" aria-label="Up diagonal strike" class="wrs_imageContainer wrs_button" style="width: 33px; height: 33px;"><img class="wrs_image" alt="" src="https://www.webassign.net/mathtype/editor/resources/icons/icons.png?v=7.23.3.d46a12" draggable="false" style="margin-left: -816px; margin-top: -35px;"></button></td><td><div class="wrs_empty"></div></td></tr></tbody></table><span class="wrs_line" style="display: none;"></span><table class="wrs_layoutFor3Rows" style="display: none;"><tbody><tr><td><button title="Prepend row" aria-label="Prepend row" class="wrs_imageContainer wrs_button" style="width: 22px; height: 22px;"><img class="wrs_image" alt="" src="https://www.webassign.net/mathtype/editor/resources/icons/icons.png?v=7.23.3.d46a12" draggable="false" style="margin-left: -1113px; margin-top: -244px;"></button></td></tr><tr><td><button title="Append row" aria-label="Append row" class="wrs_imageContainer wrs_button" style="width: 22px; height: 22px;"><img class="wrs_image" alt="" src="https://www.webassign.net/mathtype/editor/resources/icons/icons.png?v=7.23.3.d46a12" draggable="false" style="margin-left: -1113px; margin-top: -222px;"></button></td></tr><tr><td><div class="wrs_empty"></div></td></tr></tbody></table><span class="wrs_line" style="display: none;"></span><table class="wrs_layoutFor3Rows" style="display: none;"><tbody><tr><td><button title="Set carries location at north-west" aria-label="Set carries location at north-west" class="wrs_imageContainer wrs_button wrs_disabled" aria-disabled="true" style="width: 22px; height: 22px;"><img class="wrs_image" alt="" src="https://www.webassign.net/mathtype/editor/resources/icons/icons.png?v=7.23.3.d46a12" draggable="false" style="margin-left: -1135px; margin-top: -299px;"></button></td><td><button title="Set carries location at north" aria-label="Set carries location at north" class="wrs_imageContainer wrs_button wrs_disabled" aria-disabled="true" style="width: 22px; height: 22px;"><img class="wrs_image" alt="" src="https://www.webassign.net/mathtype/editor/resources/icons/icons.png?v=7.23.3.d46a12" draggable="false" style="margin-left: -1135px; margin-top: -343px;"></button></td><td><button title="Set carries location at north-east" aria-label="Set carries location at north-east" class="wrs_imageContainer wrs_button wrs_disabled" aria-disabled="true" style="width: 22px; height: 22px;"><img class="wrs_image" alt="" src="https://www.webassign.net/mathtype/editor/resources/icons/icons.png?v=7.23.3.d46a12" draggable="false" style="margin-left: -1135px; margin-top: -365px;"></button></td></tr><tr><td><button title="Set carries location at west" aria-label="Set carries location at west" class="wrs_imageContainer wrs_button wrs_disabled" aria-disabled="true" style="width: 22px; height: 22px;"><img class="wrs_image" alt="" src="https://www.webassign.net/mathtype/editor/resources/icons/icons.png?v=7.23.3.d46a12" draggable="false" style="margin-left: -1135px; margin-top: -409px;"></button></td><td><button title="Insert carries in this row" aria-label="Insert carries in this row" class="wrs_imageContainer wrs_button" style="width: 22px; height: 22px;"><img class="wrs_image" alt="" src="https://www.webassign.net/mathtype/editor/resources/icons/icons.png?v=7.23.3.d46a12" draggable="false" style="margin-left: -1135px; margin-top: -453px;"></button></td><td><button title="Set carries location at east" aria-label="Set carries location at east" class="wrs_imageContainer wrs_button wrs_disabled" aria-disabled="true" style="width: 22px; height: 22px;"><img class="wrs_image" alt="" src="https://www.webassign.net/mathtype/editor/resources/icons/icons.png?v=7.23.3.d46a12" draggable="false" style="margin-left: -1135px; margin-top: -475px;"></button></td></tr><tr><td><button title="Set carries location at south-west" aria-label="Set carries location at south-west" class="wrs_imageContainer wrs_button wrs_disabled" aria-disabled="true" style="width: 22px; height: 22px;"><img class="wrs_image" alt="" src="https://www.webassign.net/mathtype/editor/resources/icons/icons.png?v=7.23.3.d46a12" draggable="false" style="margin-left: -1135px; margin-top: -519px;"></button></td><td><button title="Set carries location at south" aria-label="Set carries location at south" class="wrs_imageContainer wrs_button wrs_disabled" aria-disabled="true" style="width: 22px; height: 22px;"><img class="wrs_image" alt="" src="https://www.webassign.net/mathtype/editor/resources/icons/icons.png?v=7.23.3.d46a12" draggable="false" style="margin-left: -1135px; margin-top: -563px;"></button></td><td><button title="Set carries location at south-east" aria-label="Set carries location at south-east" class="wrs_imageContainer wrs_button wrs_disabled" aria-disabled="true" style="width: 22px; height: 22px;"><img class="wrs_image" alt="" src="https://www.webassign.net/mathtype/editor/resources/icons/icons.png?v=7.23.3.d46a12" draggable="false" style="margin-left: -1168px; margin-top: -2px;"></button></td></tr></tbody></table><span class="wrs_line" style="display: none;"></span><table class="wrs_layoutFor3Rows" style="display: none;"><tbody><tr><td><button title="Move to left" aria-label="Move to left" class="wrs_imageContainer wrs_button" style="width: 22px; height: 22px;"><img class="wrs_image" alt="" src="https://www.webassign.net/mathtype/editor/resources/icons/icons.png?v=7.23.3.d46a12" draggable="false" style="margin-left: -1168px; margin-top: -46px;"></button></td></tr><tr><td><button title="Move to right" aria-label="Move to right" class="wrs_imageContainer wrs_button" style="width: 22px; height: 22px;"><img class="wrs_image" alt="" src="https://www.webassign.net/mathtype/editor/resources/icons/icons.png?v=7.23.3.d46a12" draggable="false" style="margin-left: -1168px; margin-top: -68px;"></button></td></tr><tr><td><div class="wrs_empty"></div></td></tr></tbody></table><span class="wrs_line" style="display: none;"></span><table class="wrs_layoutFor3Rows wrs_last" style="display: none;"><tbody><tr><td><div class="wrs_select wrs_withIcon"><select title="Spacing between digits" aria-label="Spacing between digits"><option value="medium">— Digit spacing —</option><option value="0px">0px</option><option value="1px">1px</option><option value="2px">2px</option><option value="3px">3px</option><option value="4px">4px</option><option value="5px">5px</option><option value="6px">6px</option><option value="7px">7px</option><option value="8px">8px</option><option value="9px">9px</option><option value="10px">10px</option><option value="12px">12px</option><option value="15px">15px</option><option value="20px">20px</option><option value="25px">25px</option><option value="30px">30px</option></select><div class="wrs_label" aria-hidden="true"><div class="wrs_imageContainer" style="width: 18px; height: 18px;"><img class="wrs_image" alt="" src="https://www.webassign.net/mathtype/editor/resources/icons/icons.png?v=7.23.3.d46a12" draggable="false" style="margin-left: -1135px; margin-top: -112px;"></div></div></div></td></tr><tr><td><div class="wrs_empty"></div></td></tr><tr><td><div class="wrs_empty"></div></td></tr></tbody></table><span class="wrs_line" style="display: none;"></span></div></div></div><div class="wrs_formulaDisplayWrapper"><div class="wrs_formulaDisplay" style="background-color: rgb(255, 255, 255);"><span class="wrs_ariaLiveRegion wrs_hiddenButDisplayed" aria-live="assertive" aria-hidden="false">&nbsp;</span><span class="wrs_fontContainer" style="position: absolute; top: -9999px; overflow: hidden; width: 1px;"><span class="wrs_horizontalChar"></span><span class="wrs_specialSmallChar"></span><span class="wrs_specialChar"></span><span class="wrs_mathRTLChar"></span><span class="wrs_scriptChar"></span><span class="wrs_frakturChar"></span><span class="wrs_doubleStruckChar"></span><span class="wrs_mathChar"></span><span class="wrs_roundBrackets1854Char"></span><span class="wrs_roundBrackets2254Char"></span><span class="wrs_roundBrackets2654Char"></span><span class="wrs_roundBrackets3054Char"></span><span class="wrs_roundBrackets3454Char"></span><span class="wrs_font_moeArabic"></span></span><span class="wrs_container" style="width: 7px; height: 22px; vertical-align: -5px;"><span class="wrs_metrics" style="position: absolute; top: -9999px; white-space: nowrap;"><span class="wrs_notItalic wrs_notBold wrs_font_arial" style="position: fixed; top: -9999px; left: 0px; margin: 0px; padding: 0px; font-size: 16px;">x<img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAoAAAABCAYAAADn9T9+AAAAAXNSR0IArs4c6QAAAAZiS0dEAP8A/wD/oL2nkwAAAAlwSFlzAAALEwAACxMBAJqcGAAAAAd0SU1FB9sICAweKKkHSyMAAAAZdEVYdENvbW1lbnQAQ3JlYXRlZCB3aXRoIEdJTVBXgQ4XAAAAEElEQVQI12P8z8Dwn4EIAABNBQIAJaFl6QAAAABJRU5ErkJggg==" alt="" style="height: 0px; width: 0px;"></span></span><span style="background: rgb(0, 100, 0); height: 1px; position: absolute; z-index: 2; top: 4px; left: 0px; width: 7px;">&nbsp;</span><span style="background: rgb(0, 100, 0); height: 1px; position: absolute; z-index: 2; top: 15px; left: 0px; width: 7px;">&nbsp;</span><span style="background: rgb(0, 100, 0); width: 1px; position: absolute; z-index: 2; top: 4px; left: 0px; height: 12px;">&nbsp;</span><span style="background: rgb(0, 100, 0); width: 1px; position: absolute; z-index: 2; top: 4px; left: 6px; height: 12px;">&nbsp;</span><div class="wrs_underlineCaret wrs_dark" style="left: 0px; top: 18px; border-bottom-width: 1px; width: 7px;"></div><div class="wrs_inverseCaret" style="left: -1000px; top: -1000px; border-left-width: 0px; height: 0px;"></div><div class="wrs_caret wrs_dark" style="left: 3px; top: 2px; border-left-width: 1px; height: 19px;"></div></span><div class="wrs_focusElementContainer" style="width: 1px; height: 0px; left: 19.4px; top: 31.2px;"><input type="text" autocomplete="off" autocapitalize="none" autocorrect="off" spellcheck="false" aria-label="Math input" class="wrs_focusElement" style="height: 30px;"></div></div><div aria-hidden="true" class="wrs_dropzone wrs_flexColumn"><div class="wrs_flexRow"><span class="wrs_dropzoneIcon"></span></div></div></div><div class="wrs_caretPrecisionController" style="display: none;"><div class="wrs_arrow"></div><div class="wrs_control"></div></div><div class="wrs_caretPrecisionController wrs_forSelection" style="display: none;"><div class="wrs_arrow"></div><div class="wrs_control"></div></div><div class="wrs_caretPrecisionController wrs_forSelection" style="display: none;"><div class="wrs_arrow"></div><div class="wrs_control"></div></div><div class="wrs_contextPanel wrs_hidden"></div><textarea contenteditable="true" readonly="" tabindex="-1" aria-hidden="true" class="wrs_clipboardTextarea"></textarea></div></div><div id="mathtype-preview-staging-RA_5224579_0_0_5224629" class="mathtype-preview-staging" style="font: 400 13px verdana, geneva, sans-serif; letter-spacing: normal; white-space: normal; word-break: normal; width: auto; max-width: none; display: inline-block;"><span class="mtAnswer"></span></div></body></html>

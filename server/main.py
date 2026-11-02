@@ -59,14 +59,55 @@ async def keepalive():
             logging.warning("keepalive: %s", e)
 
 
+PREFETCH_EVERY = float(os.environ.get("PREFETCH_HOURS", "24")) * 3600
+
+
+async def prefetch_all():
+    """Download the assignment list and every assignment into the cache, so pages open at once.
+    Current assignments are fetched each run. Past ones only when not yet cached (they do not change)."""
+    if not await wa.check():
+        logging.info("prefetch: not logged in to WebAssign, skipped")
+        return
+    data = write_cache("_list", await asyncio.wait_for(wa.list_assignments(), 150))
+    done = 0
+    for a in data.get("assignments", []):
+        if a.get("group") == "past" and read_cache(a["dep"]):
+            continue
+        try:
+            write_cache(a["dep"], await asyncio.wait_for(wa.get_assignment(a["dep"]), 120))
+            done += 1
+        except Exception as e:
+            logging.warning("prefetch %s: %s", a["dep"], e)
+        await asyncio.sleep(2)  # be gentle with WebAssign; also lets user requests take the lock
+    (DATA / "prefetch.json").write_text(json.dumps({"at": time.time(), "count": done}))
+    logging.info("prefetch: %d assignments cached", done)
+
+
+async def prefetcher():
+    """Run prefetch_all once per PREFETCH_HOURS (default 24). Set PREFETCH_HOURS=0 to turn it off."""
+    if PREFETCH_EVERY <= 0:
+        return
+    while True:
+        f = DATA / "prefetch.json"
+        last = json.loads(f.read_text()).get("at", 0) if f.exists() else 0
+        wait = last + PREFETCH_EVERY - time.time()
+        await asyncio.sleep(max(wait, 60))  # small delay at startup so login finishes first
+        try:
+            await prefetch_all()
+        except Exception as e:
+            logging.warning("prefetch failed: %s", e)
+            (DATA / "prefetch.json").write_text(json.dumps({"at": time.time() - PREFETCH_EVERY + 3600}))
+
+
 @asynccontextmanager
 async def lifespan(app):
     await wa.start()
     # Log in at startup when CENGAGE_EMAIL/CENGAGE_PASSWORD are set. No extension needed.
     first = asyncio.create_task(wa.check())
-    task = asyncio.create_task(keepalive())
+    tasks = [asyncio.create_task(keepalive()), asyncio.create_task(prefetcher())]
     yield
-    task.cancel()
+    for t in tasks:
+        t.cancel()
     await wa.stop()
 
 
@@ -249,6 +290,38 @@ async def submit(dep: str, box: str, body: Submit):
         logging.exception("submit failed")
         raise HTTPException(502, str(e))
     return write_cache(dep, data)
+
+
+@app.post("/api/assignments/{dep}/questions/{box}/practice")
+async def practice_start(dep: str, box: str):
+    m = re.fullmatch(r"question\d+_(\d+)", box)
+    if not dep.isdigit() or not m:
+        raise HTTPException(400)
+    await wa.check()
+    need_login()
+    try:
+        return await asyncio.wait_for(wa.practice_start(dep, int(m.group(1)) + 1), 90)
+    except Exception as e:
+        logging.exception("practice failed")
+        raise HTTPException(502, f"Could not open a practice version: {str(e).splitlines()[0] if str(e) else type(e).__name__}")
+
+
+class Practice(BaseModel):
+    answers: dict
+
+
+@app.post("/api/practice/{pid}")
+async def practice_check(pid: str, body: Practice):
+    for k in body.answers:
+        if not re.fullmatch(r"R[A-Z]_[\d_]+", k):
+            raise HTTPException(400, f"bad answer name {k}")
+    try:
+        return await wa.practice_check(pid, body.answers)
+    except KeyError as e:
+        raise HTTPException(410, str(e.args[0]))
+    except Exception as e:
+        logging.exception("practice check failed")
+        raise HTTPException(502, f"Check failed: {e}")
 
 
 @app.get("/api/submit-error.png")

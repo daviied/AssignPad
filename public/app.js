@@ -132,10 +132,17 @@ function qStyles(styles) {
       @media (max-width: 600px) { .ap-box math-field { max-width: 42vw; min-width: 110px; } }
       /* WebAssign draws fraction bars, roots and borders in black: use the text color (dark mode). */
       .q [class*="watex"] { border-color: currentColor !important; }
+      /* WebAssign CSS sets black text on some parts. Use one text color; keep the author's inline colors. */
+      .q, .q *:not([style*="color"]):not(font[color]):not(.ap-mark) { color: inherit !important; }
+      .q { color: var(--text) !important; }
       .ap-lock { font-size: 12px; color: var(--muted); }
       math-field { min-width: 140px; font-size: 1.15em; padding: 2px 6px; border-radius: 6px;
         border: 1px solid var(--line); background: var(--card); color: var(--text);
-        --caret-color: var(--accent); --selection-background-color: color-mix(in srgb, var(--accent) 25%, transparent); }
+        --caret-color: var(--accent); --selection-background-color: color-mix(in srgb, var(--accent) 25%, transparent);
+        --selection-color: var(--text);
+        /* Highlight of the group (parens, fraction) that holds the caret. The default is near-white. */
+        --contains-highlight-background-color: color-mix(in srgb, var(--accent) 14%, transparent);
+        --highlight-text: color-mix(in srgb, var(--accent) 14%, transparent); }
       math-field:focus-within { outline: 2px solid var(--accent); outline-offset: 1px; }
       math-field[readonly] { opacity: .7; border-style: dashed; cursor: not-allowed; }
       math-field::part(menu-toggle) { display: none; }
@@ -152,18 +159,23 @@ function qStyles(styles) {
     </style>`;
 }
 
-function buildQuestion(asg, q) {
+function buildQuestion(asg, q, practice = null) {
   const card = document.createElement('section');
-  card.className = 'card'; card.id = q.box;
+  card.className = practice ? 'card practice' : 'card'; card.id = practice ? 'practice-' + practice.of.box : q.box;
+  // Practice versions are not saved as drafts: each one has new numbers.
+  const draft = practice ? { get: () => null, set() {} } : { get: n => store.get(draftKey(asg.dep, n)), set: (n, v) => store.set(draftKey(asg.dep, n), v) };
   const pts = (q.details.Points || []).slice(-1)[0] || '';
   const allOk = q.parts.length && q.parts.every(p => p.mark === 'correct');
   const anyBad = q.parts.some(p => p.mark === 'incorrect');
-  card.innerHTML = `<header><span class="num">${q.number}.</span>
-      <span class="info">${pts ? esc(pts) + ' pts' : ''}${q.submissions ? ' · submissions ' + esc(q.submissions) : ''}</span>
+  card.innerHTML = `<header><span class="num">${practice ? 'Practice ' + practice.of.number : q.number + '.'}</span>
+      <span class="info">${practice ? 'Not graded' : (pts ? esc(pts) + ' pts' : '') + (q.submissions ? ' · submissions ' + esc(q.submissions) : '')}</span>
       ${allOk ? '<span class="badge ok">Correct</span>' : anyBad ? '<span class="badge bad">Incorrect</span>' : ''}
     </header><div class="body"></div>
-    <footer>${q.canSubmit ? '<button class="btn" data-act="save">Save</button><button class="btn primary" data-act="submit">Submit</button>' : ''}
-      <a class="btn" href="${esc(asg.url)}#${esc(q.box)}" target="_blank" rel="noopener">Open in WebAssign</a></footer>`;
+    <footer>${practice ? `<button class="btn" data-pav>New version</button><button class="btn" data-close>Close</button>
+        <button class="btn primary" data-check>Check answer</button>` :
+      `<button class="btn" data-pav>Practice another</button>
+      ${q.canSubmit ? '<button class="btn" data-act="save">Save</button><button class="btn primary" data-act="submit">Submit</button>' : ''}
+      <a class="btn" href="${esc(asg.url)}#${esc(q.box)}" target="_blank" rel="noopener">Open in WebAssign</a>`}</footer>`;
   const host = card.querySelector('.body');
   const root = host.attachShadow({ mode: 'open' });
   root.innerHTML = qStyles(asg.styles || []) + `<div class="q">${q.html}</div>`;
@@ -176,19 +188,19 @@ function buildQuestion(asg, q) {
     if (p.kind === 'math' || p.kind === 'text') {
       const slot = root.querySelector(`.ap-box[data-name="${p.name}"]`);
       if (!slot) continue;
-      const saved = store.get(draftKey(asg.dep, p.name));
+      const saved = draft.get(p.name);
       let el;
       if (p.kind === 'math') {
         el = new MathfieldElement();
         el.mathVirtualKeyboardPolicy = 'auto';
         el.smartFence = true;
         el.value = saved ?? mmlToLatex(p.value);
-        el.addEventListener('input', () => store.set(draftKey(asg.dep, p.name), el.value));
+        el.addEventListener('input', () => draft.set(p.name, el.value));
       } else {
         el = document.createElement('input');
         el.className = 'ap-text';
         el.value = saved ?? p.value ?? '';
-        el.addEventListener('input', () => store.set(draftKey(asg.dep, p.name), el.value));
+        el.addEventListener('input', () => draft.set(p.name, el.value));
       }
       el.addEventListener('input', () => { lastInput = Date.now(); });
       slot.append(el);
@@ -215,19 +227,72 @@ function buildQuestion(asg, q) {
       fields[p.name] = { part: p, el };
     } else {
       fields[p.name] = { part: p };
-      const saved = store.get(draftKey(asg.dep, p.name));
+      const saved = draft.get(p.name);
       if (saved != null) root.querySelectorAll(`[name="${p.name}"]`).forEach(i => {
         if (i.type === 'radio') i.checked = i.value === saved;
         else if (i.type === 'checkbox') i.checked = saved.includes(i.value);
         else i.value = saved;
       });
       root.querySelectorAll(`[name="${p.name}"]`).forEach(i => i.addEventListener('change', () =>
-        store.set(draftKey(asg.dep, p.name), readChoice(root, p))));
+        draft.set(p.name, readChoice(root, p))));
     }
   }
 
-  card.querySelectorAll('footer button').forEach(b => b.onclick = () => submitQuestion(asg, q, root, fields, b));
+  const of = practice ? practice.of : q;
+  card.querySelector('[data-pav]').onclick = e => startPractice(asg, of, card, e.target);
+  if (practice) {
+    card.querySelector('[data-close]').onclick = () => card.remove();
+    card.querySelector('[data-check]').onclick = e => checkPractice(asg, practice, card, root, fields, e.target);
+  } else card.querySelectorAll('footer button[data-act]').forEach(b => b.onclick = () => submitQuestion(asg, q, root, fields, b));
   return card;
+}
+
+function collectAnswers(root, fields) {
+  const answers = {};
+  for (const [name, f] of Object.entries(fields)) {
+    if (!f.part.enabled) continue;
+    if (f.part.kind === 'math') {
+      const latex = f.el.value.trim();
+      answers[name] = latex ? latexToMathml(latex) : '';
+    } else if (f.part.kind === 'text') answers[name] = f.el.value;
+    else { const v = readChoice(root, f.part); if (v != null) answers[name] = v; }
+  }
+  return answers;
+}
+
+function showCardError(card, title, msg) {
+  card.querySelector('.ap-error')?.remove();
+  card.querySelector('footer').insertAdjacentHTML('beforebegin',
+    `<div class="ap-error"><strong>${esc(title)}</strong> ${esc(msg)}</div>`);
+}
+
+// "Practice Another": WebAssign makes a new version of the question with new numbers. Not graded.
+async function startPractice(asg, of, card, btn) {
+  const old = btn.textContent; btn.disabled = true; btn.textContent = 'Loading…';
+  try {
+    const r = await api(`/assignments/${asg.dep}/questions/${of.box}/practice`, { method: 'POST' });
+    const pc = buildQuestion({ ...asg, styles: r.styles }, r.question, { id: r.id, of });
+    const target = card.classList.contains('practice') ? card : document.getElementById('practice-' + of.box);
+    if (target) target.replaceWith(pc); else card.after(pc);
+    pc.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  } catch (e) {
+    showCardError(card, 'Practice failed.', e.message);
+    btn.disabled = false; btn.textContent = old;
+  }
+}
+
+async function checkPractice(asg, practice, card, root, fields, btn) {
+  const btns = card.querySelectorAll('footer button');
+  btns.forEach(b => b.disabled = true); btn.textContent = 'Checking…';
+  try {
+    const r = await api(`/practice/${practice.id}`, { method: 'POST', body: JSON.stringify({ answers: collectAnswers(root, fields) }) });
+    const pc = buildQuestion({ ...asg, styles: r.styles }, r.question, practice);
+    card.replaceWith(pc);
+    toast(describeResult(r.question));
+  } catch (e) {
+    showCardError(card, 'Check failed.', e.message);
+    btns.forEach(b => b.disabled = false); btn.textContent = 'Check answer';
+  }
 }
 
 function readChoice(root, p) {
@@ -239,15 +304,7 @@ function readChoice(root, p) {
 
 async function submitQuestion(asg, q, root, fields, btn) {
   const action = btn.dataset.act;
-  const answers = {};
-  for (const [name, f] of Object.entries(fields)) {
-    if (!f.part.enabled) continue;
-    if (f.part.kind === 'math') {
-      const latex = f.el.value.trim();
-      answers[name] = latex ? latexToMathml(latex) : '';
-    } else if (f.part.kind === 'text') answers[name] = f.el.value;
-    else { const v = readChoice(root, f.part); if (v != null) answers[name] = v; }
-  }
+  const answers = collectAnswers(root, fields);
   if (action === 'submit' && !confirm(`Submit question ${q.number} to WebAssign?`)) return;
   const btns = btn.parentElement.querySelectorAll('button');
   btns.forEach(b => b.disabled = true);

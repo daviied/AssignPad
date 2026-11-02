@@ -146,7 +146,31 @@ def parse_question(qbox, page_url):
     }
 
 
-def parse_assignment(html: str, page_url: str):
+def form_fields(html: str):
+    """Name/value pairs the first form on the page would post (hidden inputs, text, checked boxes, selects)."""
+    form = BeautifulSoup(html, "html.parser").find("form")
+    pairs = []
+    if form is None:
+        return pairs
+    for el in form.find_all(["input", "select", "textarea"]):
+        name = el.get("name")
+        if not name or el.has_attr("disabled"):
+            continue
+        typ = (el.get("type") or "text").lower()
+        if el.name == "select":
+            opt = el.find("option", selected=True) or el.find("option")
+            pairs.append((name, opt.get("value", opt.get_text()) if opt else ""))
+        elif el.name == "textarea":
+            pairs.append((name, el.get_text()))
+        elif typ in ("radio", "checkbox"):
+            if el.has_attr("checked"):
+                pairs.append((name, el.get("value", "on")))
+        elif typ not in ("submit", "button", "image", "reset", "file"):
+            pairs.append((name, el.get("value", "")))
+    return pairs
+
+
+def parse_assignment(html: str, page_url: str, selector: str = ".waQBox[id^=question]"):
     soup = BeautifulSoup(html, "html.parser")
     for name in SECRET_INPUTS:
         for el in soup.select(f'input[name="{name}"]'):
@@ -167,5 +191,5 @@ def parse_assignment(html: str, page_url: str):
         m = re.search(r"/(?:out|wastatic|static)/(wacache[0-9a-f]+)/", html)
         if m:
             styles.append(proxy(f"/out/{m.group(1)}/css/questions/watex.css", page_url))
-    questions = [parse_question(q, page_url) for q in soup.select(".waQBox[id^=question]")]
+    questions = [parse_question(q, page_url) for q in soup.select(selector)]
     return {"name": name, "styles": styles, "questions": questions}

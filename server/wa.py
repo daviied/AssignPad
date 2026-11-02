@@ -10,11 +10,15 @@ from urllib.parse import urlparse
 
 from playwright.async_api import async_playwright
 
-from parse import parse_assignment, BASE
+import secrets
+from urllib.parse import urlencode
+
+from parse import parse_assignment, form_fields, BASE
 
 log = logging.getLogger("wa")
 HOME = BASE + "/v4cgi/student.pl"
 ASG_URL = BASE + "/web/Student/Assignment-Responses/last?dep={dep}"
+PRACTICE_URL = BASE + "/v4cgi/react/student/practice.tpl"
 ALLOWED_HOSTS = ("webassign.net", "cengage.com", "cengage.io", "cengage.info")
 
 
@@ -47,6 +51,7 @@ class WebAssign:
         self.last_check = 0.0
         self.last_login_try = 0.0
         self.last_error = ""
+        self.practices = {}  # id -> {"fields": form pairs (has CSRF token: stays on the server), "t": time}
 
     # ---------- browser / session ----------
     async def start(self):
@@ -264,6 +269,58 @@ class WebAssign:
         r = await self.ctx.request.get(url)
         return await r.body(), r.headers.get("content-type", "application/octet-stream"), r.status
 
+    # ---------- practice ----------
+    def _practice_result(self, pid, html, url):
+        self.practices[pid] = {"fields": form_fields(html), "t": time.time()}
+        data = parse_assignment(html, url, ".waQBox")
+        if not data["questions"]:
+            raise RuntimeError("WebAssign did not show a practice question")
+        q = data["questions"][0]
+        q["box"] = "practice"
+        return {"id": pid, "question": q, "styles": data["styles"]}
+
+    async def practice_start(self, dep: str, number: int):
+        """Click "Practice Another" for a question and read the practice version WebAssign opens."""
+        cutoff = time.time() - 6 * 3600
+        self.practices = {k: v for k, v in self.practices.items() if v["t"] > cutoff}
+        async with self.lock:
+            page = await self.ctx.new_page()
+            try:
+                await page.goto(ASG_URL.format(dep=dep), wait_until="domcontentloaded")
+                btn = page.locator(f'[data-test="practiceAnotherVersionButton{number}"]')
+                try:
+                    await btn.wait_for(timeout=30000)
+                except Exception:
+                    raise RuntimeError("WebAssign has no Practice Another for this question") from None
+                await btn.click()
+                frame_el = page.locator('iframe[src*="practice.tpl"]')
+                await frame_el.wait_for(timeout=30000)
+                frame = await (await frame_el.element_handle()).content_frame()
+                await frame.wait_for_selector(".waQBox", timeout=30000)
+                html = await frame.content()
+                await self._save_cookies()
+            finally:
+                await page.close()
+        return self._practice_result(secrets.token_urlsafe(9), html, PRACTICE_URL)
+
+    async def practice_check(self, pid: str, answers: dict):
+        """Post answers to a practice version (what WebAssign's Check Answer button does). Not graded."""
+        p = self.practices.get(pid)
+        if not p:
+            raise KeyError("This practice version expired. Open a new one.")
+        reset = {"subaction": "grade", "pos": "0", "keypos": "", "randpos": "", "solpos": ""}
+        pairs = [(k, v) for k, v in p["fields"] if k not in answers and k not in reset]
+        for k, v in answers.items():
+            pairs += [(k, x) for x in v] if isinstance(v, list) else [(k, v)]
+        pairs += list(reset.items())
+        async with self.lock:
+            r = await self.ctx.request.post(PRACTICE_URL, data=urlencode(pairs), headers={
+                "content-type": "application/x-www-form-urlencoded", "referer": PRACTICE_URL})
+            html = await r.text()
+        if not r.ok:
+            raise RuntimeError(f"WebAssign answered {r.status}")
+        return self._practice_result(pid, html, PRACTICE_URL)
+
     # ---------- writing ----------
     async def submit(self, dep: str, box: str, answers: dict, action: str = "submit"):
         """Fill answers into the real WebAssign page and click its Submit (or Save) button."""
@@ -287,6 +344,14 @@ class WebAssign:
                         arg=box, timeout=20000)
                 except Exception:
                     await page.wait_for_timeout(3000)
+                # WebAssign creates a question's answer boxes lazily (on focus or at submit) and records
+                # the current values as "original". Without this, our filled values look unchanged
+                # and WebAssign sends a blank answer.
+                step = "init question boxes"
+                await page.evaluate("""id => {
+                    const q = document.getElementById(id).retrieve('question');
+                    if (q.requireCompleteInit) q.requireCompleteInit(); else if (q.completeInit) q.completeInit();
+                  }""", box)
                 for name, value in answers.items():
                     step = f"fill {name}"
                     kind = await page.evaluate(
@@ -314,6 +379,14 @@ class WebAssign:
                               e.dispatchEvent(ev);
                             }
                           }""", [name, value])
+                step = "check filled answers"
+                changed = await page.evaluate("""([id, names]) => {
+                    const q = document.getElementById(id).retrieve('question');
+                    q.updateResponseCache && q.updateResponseCache();
+                    const boxes = (q.boxes || []).filter(Boolean);
+                    return {n: boxes.length, changed: boxes.filter(b => b.isChanged && b.isChanged()).length};
+                  }""", [box, list(answers)])
+                log.info("submit %s: %s", box, changed)
                 step = f"click {action}"
                 btn = q.locator(f'input[name="{action}"]').first
                 if not await btn.count():

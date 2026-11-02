@@ -16,6 +16,7 @@ services:
       CENGAGE_PASSWORD: ${CENGAGE_PASSWORD:-}
       # auto = Secure cookie on HTTPS, plain cookie on LAN http.
       COOKIE_SECURE: ${COOKIE_SECURE:-auto}
+      PREFETCH_HOURS: ${PREFETCH_HOURS:-24}
     volumes:
       - /DATA/AppData/assignpad:/data
     shm_size: "512mb"
