@@ -374,6 +374,15 @@ class WebAssign:
                         await page.evaluate("""([n, v]) => {
                             const e = document.getElementsByName(n)[0];
                             e.value = v;
+                            // Matrix box: also redraw WebAssign's grid so its cells match the value.
+                            if (document.getElementById('matrix_' + n) && window.matrix_draw && v) {
+                              const rows = v.slice(1, -1).split(';');  // "[a,b;c,d]"
+                              const cols = rows[0].split(',').length;
+                              if (window.setMatrixDimensions) setMatrixDimensions(n, {rows: rows.length, columns: cols});
+                              matrix_draw(n);
+                              matrix_from_flat(n, cols, rows.length);
+                              e.value = v;
+                            }
                             for (const type of ['input', 'change']) {
                               const ev = document.createEvent('HTMLEvents');
                               ev.initEvent(type, true, true);
@@ -388,6 +397,9 @@ class WebAssign:
                     return {n: boxes.length, changed: boxes.filter(b => b.isChanged && b.isChanged()).length};
                   }""", [box, list(answers)])
                 log.info("submit %s: %s", box, changed)
+                if action == "submit" and not changed["changed"]:
+                    raise RuntimeError("WebAssign sees no new answer in this question, so nothing was sent. "
+                                       "Change an answer first.")
                 step = f"click {action}"
                 btn = q.locator(f'input[name="{action}"]').first
                 if not await btn.count():

@@ -35,7 +35,7 @@ def parse_details(qbox):
 def _mark_near(el):
     """Find the correct/incorrect mark that follows an answer box."""
     for sib in el.find_all_next(limit=12):
-        if sib.name in ("input",) and str(sib.get("name", "")).startswith(("RA_", "RC_")):
+        if sib.name in ("input", "select") and re.match(r"R[A-Z]_", str(sib.get("name", ""))):
             return None
         cls = " ".join(sib.get("class", []))
         src = sib.get("src", "") or ""
@@ -80,6 +80,41 @@ def parse_question(qbox, page_url):
         if wrap:
             wrap.decompose()
         parts.append(part)
+
+    # Matrix boxes: hidden input with "[a,b;c,d]" (rows split by ';'), edited in a grid of cells.
+    for div in content.select('div.matrix_input[id^="matrix_"]'):
+        name = div["id"][len("matrix_"):]
+        inp = qbox.find("input", attrs={"name": name})
+        if inp is None:
+            continue
+        value = inp.get("value", "")
+        m = re.search(r"matrix_initialize\(\s*['\"]" + re.escape(name) + r"['\"]\s*,\s*(\d+)\s*,\s*(\d+)", str(qbox))
+        cols, rows = (int(m.group(1)), int(m.group(2))) if m else (2, 2)
+        if value.strip("[] "):
+            cells = [r.split(",") for r in value.strip("[] ").split(";")]
+            rows, cols = len(cells), max(len(r) for r in cells)
+        en = qbox.find(id=f"enabled_{name}")
+        parts.append({
+            "name": name, "kind": "matrix", "value": value, "rows": rows, "cols": cols,
+            "enabled": not (div.select_one("input[disabled]") or (en is not None and en.get("value") == "0")),
+            "mark": _mark_near(inp), "pad": None,
+        })
+        holder = div.parent if div.parent and "qTextField" in div.parent.get("class", []) else div
+        holder.replace_with(BeautifulSoup(f'<span class="ap-box" data-name="{name}"></span>', "html.parser").span)
+
+    # Plain text answer boxes: numeric (RN_), short text, etc. WebAssign reads their value directly.
+    for inp in content.select('input[name]'):
+        name = inp["name"]
+        if (inp.get("type") or "text").lower() != "text" or not re.match(r"R[A-Z]_", name) \
+                or any(p["name"] == name for p in parts):
+            continue
+        en = qbox.find(id=f"enabled_{name}")
+        parts.append({
+            "name": name, "kind": "text", "value": inp.get("value", ""),
+            "enabled": not (inp.has_attr("disabled") or inp.has_attr("readonly") or (en is not None and en.get("value") == "0")),
+            "mark": _mark_near(inp), "pad": None,
+        })
+        inp.replace_with(BeautifulSoup(f'<span class="ap-box" data-name="{name}"></span>', "html.parser").span)
 
     # Multiple choice (radio / checkbox) and dropdowns.
     groups = {}

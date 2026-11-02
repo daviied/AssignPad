@@ -101,7 +101,7 @@ async function showList(refresh = false) {
 }
 
 // ---------- Assignment ----------
-const VERSION = 'v12';  // keep equal to SHELL in sw.js
+const VERSION = 'v13';  // keep equal to SHELL in sw.js
 const draftKey = (dep, name) => `draft:${dep}:${name}`;
 let lastInput = 0;
 const MML = 'http://www.w3.org/1998/Math/MathML';
@@ -149,6 +149,12 @@ function qStyles(styles) {
       math-field[readonly] { opacity: .7; border-style: dashed; cursor: not-allowed; }
       math-field::part(menu-toggle) { display: none; }
       math-field::part(container) { cursor: text; }
+      .ap-mx { border-collapse: separate; border-spacing: 4px; border-left: 2px solid currentColor;
+        border-right: 2px solid currentColor; border-radius: 6px; display: inline-table; vertical-align: middle; }
+      .ap-cell { width: 5.5em; }
+      .ap-mx-btns { display: inline-flex; flex-direction: column; gap: 2px; vertical-align: middle; margin-left: 4px; }
+      .ap-mx-btns button { font-size: 11px; padding: 1px 6px; border-radius: 4px; border: 1px solid var(--line);
+        background: var(--card); color: var(--text); cursor: pointer; }
       input.ap-text { font: inherit; padding: 4px 8px; border-radius: 6px; border: 1px solid var(--line);
         background: var(--card); color: var(--text); }
       .ap-mark { font-weight: 700; } .ap-mark.correct { color: var(--ok); } .ap-mark.incorrect { color: var(--bad); }
@@ -178,6 +184,39 @@ function fixInlineColors(root) {
   });
 }
 
+// WebAssign matrix answer: "[a,b;c,d]" (',' between columns, ';' between rows), "" when empty.
+function matrixEditor(value, rows, cols, readonly, onChange) {
+  let cells = String(value || '').replace(/[\[\]\s]/g, '')
+    ? value.replace(/[\[\]]/g, '').split(';').map(r => r.split(',').map(c => c.trim())) : [];
+  rows = cells.length || rows || 2; cols = Math.max(0, ...cells.map(r => r.length)) || cols || 2;
+  const el = document.createElement('span');
+  el.className = 'ap-matrix';
+  const read = () => [...el.querySelectorAll('tr')].map(tr => [...tr.querySelectorAll('input')].map(i => i.value));
+  const value_ = () => {
+    const c = read();
+    return c.flat().some(v => /\w/.test(v)) ? '[' + c.map(r => r.map(v => v.replace(/[,;\[\]]/g, '')).join(',')).join(';') + ']' : '';
+  };
+  const draw = () => {
+    el.innerHTML = `<table class="ap-mx">${Array.from({ length: rows }, (_, r) => `<tr>${Array.from({ length: cols }, (_, c) =>
+      `<td><input class="ap-text ap-cell" inputmode="decimal" aria-label="row ${r + 1} column ${c + 1}"
+        value="${esc(cells[r]?.[c] ?? '')}" ${readonly ? 'readonly' : ''}></td>`).join('')}</tr>`).join('')}</table>
+      ${readonly ? '' : `<span class="ap-mx-btns">
+        <button type="button" data-d="0,1" title="Add row">+row</button><button type="button" data-d="0,-1" title="Remove row">−row</button>
+        <button type="button" data-d="1,0" title="Add column">+col</button><button type="button" data-d="-1,0" title="Remove column">−col</button></span>`}`;
+  };
+  draw();
+  el.addEventListener('input', () => onChange(value_()));
+  el.addEventListener('click', e => {
+    const b = e.target.closest('button[data-d]');
+    if (!b) return;
+    const [dc, dr] = b.dataset.d.split(',').map(Number);
+    cells = read();
+    rows = Math.max(1, rows + dr); cols = Math.max(1, cols + dc);
+    draw(); onChange(value_());
+  });
+  return { el, get value() { return value_(); } };
+}
+
 function buildQuestion(asg, q, practice = null) {
   const card = document.createElement('section');
   card.className = practice ? 'card practice' : 'card'; card.id = practice ? 'practice-' + practice.of.box : q.box;
@@ -205,7 +244,17 @@ function buildQuestion(asg, q, practice = null) {
 
   const fields = {};
   for (const p of q.parts) {
-    if (p.kind === 'math' || p.kind === 'text') {
+    if (p.kind === 'matrix') {
+      const slot = root.querySelector(`.ap-box[data-name="${p.name}"]`);
+      if (!slot) continue;
+      const m = matrixEditor(draft.get(p.name) ?? p.value, p.rows, p.cols, !p.enabled,
+        v => { lastInput = Date.now(); draft.set(p.name, v); });
+      slot.append(m.el);
+      if (!p.enabled) slot.insertAdjacentHTML('beforeend', '<span class="ap-lock">🔒 locked</span>');
+      if (p.mark) slot.insertAdjacentHTML('beforeend',
+        `<span class="ap-mark ${p.mark}" title="${p.mark}">${p.mark === 'correct' ? '✓' : '✗'}</span>`);
+      fields[p.name] = { part: p, el: m };
+    } else if (p.kind === 'math' || p.kind === 'text') {
       const slot = root.querySelector(`.ap-box[data-name="${p.name}"]`);
       if (!slot) continue;
       const saved = draft.get(p.name);
@@ -274,7 +323,7 @@ function collectAnswers(root, fields) {
     if (f.part.kind === 'math') {
       const latex = f.el.value.trim();
       answers[name] = latex ? latexToMathml(latex) : '';
-    } else if (f.part.kind === 'text') answers[name] = f.el.value;
+    } else if (f.part.kind === 'text' || f.part.kind === 'matrix') answers[name] = f.el.value;
     else { const v = readChoice(root, f.part); if (v != null) answers[name] = v; }
   }
   return answers;

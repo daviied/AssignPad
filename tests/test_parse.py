@@ -54,3 +54,18 @@ def test_no_secrets():
 if __name__ == "__main__":
     test_parse_sample(); test_no_secrets()
     print(json.dumps(load(), indent=1)[:2500])
+
+
+def test_number_and_matrix_boxes():
+    html = (ROOT / "tests/fixtures/types.html").read_text(encoding="utf-8")
+    q = parse_assignment(html, "https://www.webassign.net/web/Student/x")["questions"][0]
+    parts = {p["name"]: p for p in q["parts"]}
+    assert parts["RN_11_0_0_5"]["kind"] == "text" and parts["RN_11_0_0_5"]["enabled"]
+    assert parts["RN_11_0_1_5"]["enabled"] is False and parts["RN_11_0_1_5"]["value"] == "3"
+    m = parts["RB_11_0_2_5"]
+    assert (m["kind"], m["rows"], m["cols"]) == ("matrix", 2, 3)
+    assert (parts["RB_11_0_3_5"]["rows"], parts["RB_11_0_3_5"]["cols"]) == (2, 2)
+    assert parts["RC_11_0_4_5"]["kind"] == "select"
+    for name in parts:
+        assert f'data-name="{name}"' in q["html"] or name.startswith("RC_")
+    assert "matrix_input" not in q["html"] and "<input" not in q["html"].replace('type="radio"', "")

@@ -285,6 +285,8 @@ async def submit(dep: str, box: str, body: Submit):
     for k in body.answers:
         if not re.fullmatch(r"R[A-Z]_[\d_]+", k):
             raise HTTPException(400, f"bad answer name {k}")
+    if not body.answers:
+        raise HTTPException(400, "No answers to send. This question has no answer boxes that AssignPad knows.")
     await wa.check()
     need_login()
     try:
