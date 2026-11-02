@@ -39,6 +39,9 @@ h2.section { font-size: 13px; text-transform: uppercase; letter-spacing: .05em; 
 .card header .info { flex: 1; font-size: 13px; color: var(--muted); }
 .card .body { padding: 14px; overflow-x: auto; }
 .card footer { display: flex; gap: 8px; justify-content: flex-end; padding: 10px 14px; border-top: 1px solid var(--line); flex-wrap: wrap; }
+.ap-error { margin: 0 14px 10px; padding: 10px 12px; border: 1px solid var(--bad); border-radius: 8px;
+  font-size: 14px; overflow-wrap: anywhere; }
+.ap-error a { color: var(--accent); margin-left: 6px; }
 .badge { font-size: 12px; padding: 2px 8px; border-radius: 99px; border: 1px solid var(--line); }
 .badge.ok { color: var(--ok); border-color: var(--ok); } .badge.bad { color: var(--bad); border-color: var(--bad); }
 button.btn { font: inherit; padding: 8px 16px; border-radius: 8px; border: 1px solid var(--line);

@@ -263,7 +263,12 @@ async function submitQuestion(asg, q, root, fields, btn) {
     toast(action === 'submit' ? describeResult(nq) : 'Saved to WebAssign');
     renderAssignment(data, q.box);
   } catch (e) {
-    toast(e.message, 6000);
+    // Keep the full error on the card, with WebAssign's screenshot, until the next try.
+    const card = btn.closest('.card');
+    card.querySelector('.ap-error')?.remove();
+    card.querySelector('footer').insertAdjacentHTML('beforebegin', `<div class="ap-error">
+      <strong>${action === 'submit' ? 'Submit' : 'Save'} failed.</strong> ${esc(e.message)}
+      <a href="/api/submit-error.png?t=${Date.now()}" target="_blank">WebAssign screenshot</a></div>`);
     btns.forEach(b => b.disabled = false); btn.textContent = old;
   }
 }

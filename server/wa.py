@@ -75,7 +75,6 @@ class WebAssign:
             cookies = json.loads(self.session_file.read_text())
             await self.ctx.add_cookies(cookies)
         self.ctx.on("page", lambda p: p.on("dialog", lambda d: asyncio.ensure_future(d.accept())))
-
     async def _save_cookies(self):
         cookies = await self.ctx.cookies()
         self.session_file.write_text(json.dumps(cookies))
@@ -270,14 +269,26 @@ class WebAssign:
         """Fill answers into the real WebAssign page and click its Submit (or Save) button."""
         if action not in ("submit", "save"):
             raise ValueError("bad action")
+        notes = []  # WebAssign pop-ups and page script errors, shown to the user on failure
+        step = "open assignment"
         async with self.lock:
             page = await self.ctx.new_page()
+            page.on("dialog", lambda d: notes.append(f"WebAssign pop-up: {d.message}"))
+            page.on("pageerror", lambda e: notes.append(f"WebAssign page error: {e}"))
             try:
                 await page.goto(ASG_URL.format(dep=dep), wait_until="domcontentloaded")
                 q = page.locator(f"#{box}")
                 await q.wait_for(timeout=30000)
-                await page.wait_for_load_state("networkidle", timeout=30000)
+                step = "wait for question scripts"
+                # WebAssign never goes network-idle (analytics); wait for its question object instead.
+                try:
+                    await page.wait_for_function(
+                        "id => { const e = document.getElementById(id); return e && e.retrieve && e.retrieve('question') }",
+                        arg=box, timeout=20000)
+                except Exception:
+                    await page.wait_for_timeout(3000)
                 for name, value in answers.items():
+                    step = f"fill {name}"
                     kind = await page.evaluate(
                         "n => { const e = document.getElementsByName(n)[0]; return e ? (e.type || e.tagName) : null }",
                         name)
@@ -292,20 +303,46 @@ class WebAssign:
                     elif kind.lower() == "select-one":
                         await page.select_option(f'select[name="{name}"]', value)
                     else:
+                        # WebAssign loads MooTools, which replaces window.Event, so `new Event()`
+                        # crashes there. document.createEvent makes a native event.
                         await page.evaluate("""([n, v]) => {
                             const e = document.getElementsByName(n)[0];
                             e.value = v;
-                            e.dispatchEvent(new Event('input', {bubbles: true}));
-                            e.dispatchEvent(new Event('change', {bubbles: true}));
+                            for (const type of ['input', 'change']) {
+                              const ev = document.createEvent('HTMLEvents');
+                              ev.initEvent(type, true, true);
+                              e.dispatchEvent(ev);
+                            }
                           }""", [name, value])
+                step = f"click {action}"
                 btn = q.locator(f'input[name="{action}"]').first
+                if not await btn.count():
+                    raise RuntimeError(f"WebAssign shows no {action} button for this question "
+                                       "(past due, or no submissions left?)")
                 async with page.expect_response(lambda r: r.request.method == "POST", timeout=45000):
                     await btn.click()
-                await page.wait_for_load_state("networkidle", timeout=45000)
+                step = "wait for WebAssign result"
+                await page.wait_for_load_state("domcontentloaded", timeout=45000)
+                await page.locator(f"#{box}").wait_for(timeout=30000)
+                await page.wait_for_timeout(1500)  # let WebAssign update the marks
                 html = await page.content()
                 await self._save_cookies()
+            except Exception as e:
+                try:
+                    await page.screenshot(path=str(self.data / "submit-error.png"), full_page=True)
+                except Exception:
+                    pass
+                # Playwright errors have a long call log after the first line.
+                msg = f"Submit failed at step '{step}': {str(e).splitlines()[0] if str(e) else type(e).__name__}"
+                if notes:
+                    msg += " | " + " | ".join(notes[-3:])
+                log.warning(msg)
+                raise RuntimeError(msg) from None
             finally:
                 await page.close()
+        if notes:
+            log.info("submit notes: %s", notes)
         data = parse_assignment(html, ASG_URL.format(dep=dep))
+        data["notes"] = notes[-3:]
         data.update(dep=dep, url=ASG_URL.format(dep=dep), synced=time.time())
         return data

@@ -247,8 +247,17 @@ async def submit(dep: str, box: str, body: Submit):
         data = await wa.submit(dep, box, body.answers, body.action)
     except Exception as e:
         logging.exception("submit failed")
-        raise HTTPException(502, f"WebAssign submit failed: {e}")
+        raise HTTPException(502, str(e))
     return write_cache(dep, data)
+
+
+@app.get("/api/submit-error.png")
+async def submit_error_png():
+    """Screenshot of the WebAssign page when the last submit failed, for debugging."""
+    f = DATA / "submit-error.png"
+    if not f.exists():
+        raise HTTPException(404)
+    return FileResponse(f, headers={"Cache-Control": "no-store"})
 
 
 @app.get("/api/proxy")
