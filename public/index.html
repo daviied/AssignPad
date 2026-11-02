@@ -1,0 +1,24 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>AssignPad</title>
+  <meta name="theme-color" content="#1f3a5f">
+  <link rel="manifest" href="/manifest.webmanifest">
+  <link rel="icon" href="/icon.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="/icon-192.png">
+  <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+  <header class="bar">
+    <button id="back" class="icon-btn" hidden aria-label="Back">&#8592;</button>
+    <div class="title"><strong id="title">AssignPad</strong><span id="subtitle"></span></div>
+    <span id="session" class="dot" title="WebAssign session"></span>
+    <button id="sync" class="icon-btn" aria-label="Sync">&#8635;</button>
+  </header>
+  <main id="view"></main>
+  <div id="toast" role="status"></div>
+  <script type="module" src="/app.js"></script>
+</body>
+</html>

@@ -1,0 +1,58 @@
+:root {
+  --bg: #f4f6f9; --card: #fff; --text: #1b2430; --muted: #5d6b7e; --line: #dde3ea;
+  --accent: #1f6feb; --bar: #1f3a5f; --ok: #1a7f37; --bad: #cf222e; --warn: #9a6700;
+  color-scheme: light;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #0f141a; --card: #171e27; --text: #e6edf3; --muted: #9aa7b6; --line: #2a3441;
+    --accent: #4c8dff; --bar: #142233; --ok: #3fb950; --bad: #f85149; --warn: #d29922;
+    color-scheme: dark;
+  }
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; background: var(--bg); color: var(--text);
+  font: 16px/1.45 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; }
+.bar { position: sticky; top: 0; z-index: 10; display: flex; align-items: center; gap: 8px;
+  padding: 10px 16px; padding-top: max(10px, env(safe-area-inset-top)); background: var(--bar); color: #fff; }
+.bar .title { flex: 1; min-width: 0; display: flex; flex-direction: column; }
+.bar .title strong, .bar .title span { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.bar .title span { font-size: 12px; opacity: .8; }
+.icon-btn { background: none; border: 0; color: inherit; font-size: 22px; width: 40px; height: 40px;
+  border-radius: 8px; cursor: pointer; }
+.icon-btn:hover { background: rgba(255,255,255,.12); }
+.icon-btn.spin { animation: spin 1s linear infinite; }
+@keyframes spin { to { transform: rotate(360deg); } }
+.dot { width: 10px; height: 10px; border-radius: 50%; background: #888; flex: none; }
+.dot.ok { background: #3fb950; } .dot.bad { background: #f85149; }
+main { max-width: 900px; margin: 0 auto; padding: 16px; padding-bottom: 300px; }
+h2.section { font-size: 13px; text-transform: uppercase; letter-spacing: .05em; color: var(--muted); margin: 20px 0 8px; }
+.list { display: grid; gap: 8px; }
+.row { display: flex; gap: 12px; align-items: center; padding: 12px 14px; background: var(--card);
+  border: 1px solid var(--line); border-radius: 10px; text-decoration: none; color: inherit; }
+.row:hover { border-color: var(--accent); }
+.row .name { flex: 1; min-width: 0; font-weight: 600; }
+.row .meta { font-size: 13px; color: var(--muted); text-align: right; white-space: nowrap; }
+.card { background: var(--card); border: 1px solid var(--line); border-radius: 12px; margin: 14px 0; overflow: hidden; }
+.card header { display: flex; align-items: center; gap: 10px; padding: 10px 14px; border-bottom: 1px solid var(--line); }
+.card header .num { font-weight: 700; }
+.card header .info { flex: 1; font-size: 13px; color: var(--muted); }
+.card .body { padding: 14px; overflow-x: auto; }
+.card footer { display: flex; gap: 8px; justify-content: flex-end; padding: 10px 14px; border-top: 1px solid var(--line); flex-wrap: wrap; }
+.badge { font-size: 12px; padding: 2px 8px; border-radius: 99px; border: 1px solid var(--line); }
+.badge.ok { color: var(--ok); border-color: var(--ok); } .badge.bad { color: var(--bad); border-color: var(--bad); }
+button.btn { font: inherit; padding: 8px 16px; border-radius: 8px; border: 1px solid var(--line);
+  background: var(--card); color: var(--text); cursor: pointer; min-height: 40px; }
+button.btn.primary { background: var(--accent); border-color: var(--accent); color: #fff; }
+button.btn:disabled { opacity: .5; cursor: default; }
+a.btn { display: inline-flex; align-items: center; text-decoration: none; }
+.empty, .note { color: var(--muted); padding: 24px 0; text-align: center; }
+.login { max-width: 360px; margin: 10vh auto; display: grid; gap: 12px; }
+.login input { font: inherit; padding: 10px 12px; border-radius: 8px; border: 1px solid var(--line);
+  background: var(--card); color: var(--text); }
+#toast { position: fixed; left: 50%; bottom: 24px; transform: translateX(-50%); background: #24292f; color: #fff;
+  padding: 10px 16px; border-radius: 8px; opacity: 0; transition: opacity .2s; pointer-events: none; max-width: 90vw; z-index: 50; }
+#toast.show { opacity: 1; }
+.hdr { display: flex; flex-wrap: wrap; gap: 8px 16px; color: var(--muted); font-size: 14px; }
+.hdr a { color: var(--accent); }
+@media (max-width: 600px) { main { padding: 12px; } .row { flex-wrap: wrap; } .row .meta { text-align: left; } }

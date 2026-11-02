@@ -1,0 +1,24 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <style>
+    body { font: 14px system-ui, sans-serif; width: 300px; margin: 12px; }
+    label { display: block; margin: 8px 0 2px; font-weight: 600; }
+    input { width: 100%; box-sizing: border-box; padding: 6px; }
+    button { margin-top: 12px; width: 100%; padding: 8px; font: inherit; cursor: pointer; }
+    #msg { margin-top: 10px; min-height: 1.4em; }
+    .ok { color: #1a7f37; } .bad { color: #cf222e; }
+  </style>
+</head>
+<body>
+  <strong>AssignPad Bridge</strong>
+  <label for="server">Server URL</label>
+  <input id="server" placeholder="https://assignpad.example.com">
+  <label for="token">AssignPad password</label>
+  <input id="token" type="password">
+  <button id="save">Save and send session</button>
+  <div id="msg"></div>
+  <script src="popup.js"></script>
+</body>
+</html>

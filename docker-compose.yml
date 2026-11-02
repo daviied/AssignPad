@@ -1,0 +1,29 @@
+# Paste into CasaOS: App Store > Custom Install > Import (docker compose).
+# Change YOUR_GITHUB_USER and APP_PASSWORD before you install.
+name: assignpad
+services:
+  assignpad:
+    image: ghcr.io/YOUR_GITHUB_USER/assignpad:latest
+    container_name: assignpad
+    restart: unless-stopped
+    ports:
+      - "8080:8080"
+    environment:
+      APP_PASSWORD: "change-me-to-a-long-password"
+      # Set to "0" only if you use plain http (no HTTPS) on your LAN.
+      COOKIE_SECURE: "1"
+      # Optional fallback: server logs in to Cengage itself when the session expires.
+      # CENGAGE_EMAIL: ""
+      # CENGAGE_PASSWORD: ""
+    volumes:
+      - /DATA/AppData/assignpad:/data
+    shm_size: "512mb"
+    x-casaos:
+      title:
+        en_us: AssignPad
+      description:
+        en_us: Fast WebAssign front end with a Desmos-style math editor.
+      icon: https://raw.githubusercontent.com/YOUR_GITHUB_USER/assignpad/main/public/icon-512.png
+      port_map: "8080"
+      scheme: http
+      index: /

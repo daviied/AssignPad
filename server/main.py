@@ -1,0 +1,246 @@
+"""AssignPad API server."""
+import asyncio
+import hashlib
+import hmac
+import secrets
+import json
+import logging
+import os
+import re
+import time
+from contextlib import asynccontextmanager
+from pathlib import Path
+
+from fastapi import FastAPI, HTTPException, Request, Response
+from fastapi.responses import FileResponse, JSONResponse
+from fastapi.staticfiles import StaticFiles
+from pydantic import BaseModel
+
+from wa import WebAssign, host_allowed
+
+logging.basicConfig(level=logging.INFO)
+DATA = Path(os.environ.get("DATA_DIR", "/data"))
+(DATA / "cache").mkdir(parents=True, exist_ok=True)
+STATIC = Path(__file__).resolve().parent.parent / "public"
+PASSWORD = os.environ.get("APP_PASSWORD", "")
+if len(PASSWORD) < 8:
+    raise SystemExit("Set APP_PASSWORD (8+ characters). The server will not start without it.")
+DEV = os.environ.get("DEV") == "1"
+wa = WebAssign(DATA)
+
+# Session cookie = HMAC of a random server secret. The password is never stored in the cookie.
+_secret_file = DATA / "secret"
+if not _secret_file.exists():
+    _secret_file.write_text(secrets.token_hex(32))
+    os.chmod(_secret_file, 0o600)
+SESSION = hmac.new(_secret_file.read_text().encode(), PASSWORD.encode(), hashlib.sha256).hexdigest()
+_fails: dict[str, list[float]] = {}
+
+
+def client_ip(request: Request):
+    return (request.headers.get("x-real-ip")
+            or request.headers.get("x-forwarded-for", "").split(",")[0].strip()
+            or (request.client.host if request.client else "?"))
+
+
+def rate_limited(ip):
+    now = time.time()
+    _fails[ip] = [t for t in _fails.get(ip, []) if now - t < 900]
+    return len(_fails[ip]) >= 10
+
+
+async def keepalive():
+    """Keep the WebAssign session alive so it does not time out."""
+    while True:
+        await asyncio.sleep(15 * 60)
+        try:
+            await wa.check(force=False)
+        except Exception as e:
+            logging.warning("keepalive: %s", e)
+
+
+@asynccontextmanager
+async def lifespan(app):
+    await wa.start()
+    task = asyncio.create_task(keepalive())
+    yield
+    task.cancel()
+    await wa.stop()
+
+
+app = FastAPI(lifespan=lifespan)
+
+
+@app.middleware("http")
+async def auth(request: Request, call_next):
+    p = request.url.path
+    if p.startswith("/api/") and p != "/api/login" and request.method != "OPTIONS":
+        bearer = request.headers.get("authorization", "").removeprefix("Bearer ").strip()
+        ok = hmac.compare_digest(request.cookies.get("ap_session", ""), SESSION)
+        if not ok and bearer:
+            ip = client_ip(request)
+            if rate_limited(ip):
+                return JSONResponse({"error": "too many attempts"}, status_code=429)
+            ok = hmac.compare_digest(bearer, PASSWORD)
+            if not ok:
+                _fails[ip].append(time.time())
+        if not ok:
+            return JSONResponse({"error": "unauthorized"}, status_code=401)
+    resp = await call_next(request)
+    if p.startswith("/api/session"):
+        resp.headers["Access-Control-Allow-Origin"] = "*"
+    return resp
+
+
+def cache_path(name):
+    return DATA / "cache" / f"{re.sub(r'[^0-9A-Za-z_-]', '', name)}.json"
+
+
+def read_cache(name):
+    f = cache_path(name)
+    return json.loads(f.read_text()) if f.exists() else None
+
+
+def write_cache(name, data):
+    cache_path(name).write_text(json.dumps(data))
+    return data
+
+
+class Login(BaseModel):
+    password: str
+
+
+@app.post("/api/login")
+async def login(body: Login, request: Request, response: Response):
+    ip = client_ip(request)
+    if rate_limited(ip):
+        raise HTTPException(429, "Too many attempts. Wait 15 minutes.")
+    if not hmac.compare_digest(body.password, PASSWORD):
+        _fails[ip].append(time.time())
+        raise HTTPException(401, "Wrong password")
+    response.set_cookie("ap_session", SESSION, max_age=90 * 86400, httponly=True, samesite="strict",
+                        secure=os.environ.get("COOKIE_SECURE", "1") == "1")
+    return {"ok": True}
+
+
+@app.post("/api/logout")
+async def logout(response: Response):
+    response.delete_cookie("ap_session")
+    return {"ok": True}
+
+
+@app.get("/api/status")
+async def status():
+    ok = await wa.check()
+    return {"loggedIn": ok, "lastCheck": wa.last_check, "passwordLogin": bool(os.environ.get("CENGAGE_EMAIL"))}
+
+
+class Session(BaseModel):
+    cookies: list
+
+
+@app.options("/api/session")
+async def session_preflight():
+    return Response(headers={"Access-Control-Allow-Origin": "*",
+                             "Access-Control-Allow-Headers": "authorization, content-type",
+                             "Access-Control-Allow-Methods": "POST"})
+
+
+@app.post("/api/session")
+async def set_session(body: Session):
+    """The browser extension sends your WebAssign cookies here."""
+    ok = await wa.set_cookies(body.cookies)
+    return {"loggedIn": ok}
+
+
+class Creds(BaseModel):
+    email: str | None = None
+    password: str | None = None
+
+
+@app.post("/api/wa-login")
+async def wa_login(body: Creds):
+    return {"loggedIn": await wa.login(body.email, body.password)}
+
+
+def need_login():
+    if not wa.logged_in:
+        raise HTTPException(409, "WebAssign session expired. Send a new session from the browser extension.")
+
+
+@app.get("/api/assignments")
+async def assignments(refresh: int = 0):
+    cached = read_cache("_list")
+    if cached and not refresh:
+        return cached
+    await wa.check()
+    need_login()
+    return write_cache("_list", await wa.list_assignments())
+
+
+@app.get("/api/assignments/{dep}")
+async def assignment(dep: str, refresh: int = 0):
+    if not dep.isdigit():
+        raise HTTPException(400)
+    cached = read_cache(dep)
+    if cached and not refresh:
+        return cached
+    try:
+        return write_cache(dep, await wa.get_assignment(dep))
+    except PermissionError as e:
+        raise HTTPException(409, str(e))
+
+
+class Submit(BaseModel):
+    answers: dict
+    action: str = "submit"
+
+
+@app.post("/api/assignments/{dep}/questions/{box}")
+async def submit(dep: str, box: str, body: Submit):
+    if not dep.isdigit() or not re.fullmatch(r"question\d+_\d+", box):
+        raise HTTPException(400)
+    for k in body.answers:
+        if not re.fullmatch(r"R[A-Z]_[\d_]+", k):
+            raise HTTPException(400, f"bad answer name {k}")
+    await wa.check()
+    need_login()
+    try:
+        data = await wa.submit(dep, box, body.answers, body.action)
+    except Exception as e:
+        logging.exception("submit failed")
+        raise HTTPException(502, f"WebAssign submit failed: {e}")
+    return write_cache(dep, data)
+
+
+@app.get("/api/proxy")
+async def proxy(u: str):
+    if not host_allowed(u):
+        raise HTTPException(400, "host not allowed")
+    body, ctype, code = await wa.proxy(u)
+    return Response(body, status_code=code, media_type=ctype,
+                    headers={"Cache-Control": "private, max-age=604800"})
+
+
+if DEV:
+    @app.post("/dev/fixture/{name}")
+    async def fixture(name: str, request: Request):
+        d = Path(__file__).resolve().parent.parent / "tests" / "fixtures"
+        d.mkdir(parents=True, exist_ok=True)
+        (d / f"{re.sub(r'[^0-9A-Za-z_-]', '', name)}.html").write_bytes(await request.body())
+        return Response("ok", headers={"Access-Control-Allow-Origin": "*",
+                                       "Access-Control-Allow-Private-Network": "true"})
+
+    @app.options("/dev/fixture/{name}")
+    async def fixture_pre(name: str):
+        return Response(headers={"Access-Control-Allow-Origin": "*", "Access-Control-Allow-Headers": "*",
+                                 "Access-Control-Allow-Methods": "POST",
+                                 "Access-Control-Allow-Private-Network": "true"})
+
+
+@app.get("/sw.js")
+async def sw():
+    return FileResponse(STATIC / "sw.js", headers={"Cache-Control": "no-cache"})
+
+
+app.mount("/", StaticFiles(directory=STATIC, html=True), name="static")
