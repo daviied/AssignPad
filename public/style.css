@@ -74,3 +74,5 @@ a.btn { display: inline-flex; align-items: center; text-decoration: none; }
 .ext-ctl { display: flex; flex-wrap: wrap; gap: 8px 14px; align-items: center; }
 .small { font-size: 13px; } .muted { color: var(--muted); }
 .ok { color: var(--ok); } .bad { color: var(--bad); }
+.tz { display: flex; gap: 8px; justify-content: center; align-items: center; padding-bottom: 0; }
+.tz select { font: inherit; max-width: 60vw; padding: 4px 8px; border-radius: 8px; border: 1px solid var(--line); background: var(--card); color: var(--text); }

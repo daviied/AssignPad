@@ -76,18 +76,39 @@ function showLogin() {
   };
 }
 
+// ---------- Time zone ----------
+// '' = this device's zone. The server sends due times as Unix time (dueTs).
+const deviceTz = Intl.DateTimeFormat().resolvedOptions().timeZone;
+const tz = () => store.get('tz') || deviceTz;
+function fmtDue(a) {
+  if (!a?.dueTs) return a?.due || '';
+  try {
+    return new Intl.DateTimeFormat(undefined, { timeZone: tz(), weekday: 'short', month: 'short', day: 'numeric',
+      hour: 'numeric', minute: '2-digit', timeZoneName: 'short' }).format(new Date(a.dueTs * 1000));
+  } catch { return a.due || ''; }
+}
+function tzPicker() {
+  const zones = Intl.supportedValuesOf ? Intl.supportedValuesOf('timeZone') : [deviceTz];
+  const cur = store.get('tz') || '';
+  return `<label class="note tz">Time zone <select id="tz">
+    <option value="">This device (${esc(deviceTz)})</option>
+    ${zones.map(z => `<option value="${esc(z)}"${z === cur ? ' selected' : ''}>${esc(z.replace(/_/g, ' '))}</option>`).join('')}
+  </select></label>`;
+}
+
 // ---------- Assignment list ----------
 function renderList(data) {
   setBar(data.course || 'AssignPad', data.synced ? 'Synced ' + new Date(data.synced * 1000).toLocaleString() : '');
   const rows = data.assignments || [];
   const sec = (label, items) => items.length ? `<h2 class="section">${label}</h2><div class="list">${items.map(a =>
     `<a class="row" href="#/a/${a.dep}"><span class="name">${esc(a.name)}</span>
-      <span class="meta">${esc(a.due)}${a.score ? '<br>' + esc(a.score) : ''}</span></a>`).join('')}</div>` : '';
+      <span class="meta">${esc(fmtDue(a))}${a.score ? '<br>' + esc(a.score) : ''}</span></a>`).join('')}</div>` : '';
   view.innerHTML = rows.length
     ? sec('Current', rows.filter(a => a.group === 'current')) + sec('Past', rows.filter(a => a.group !== 'current'))
     : '<p class="empty">No assignments yet. Press sync.</p>';
   view.insertAdjacentHTML('afterbegin', '<div class="card ext" id="ext-auto"></div>');
-  view.insertAdjacentHTML('beforeend', `<p class="note">AssignPad ${VERSION}</p>`);
+  view.insertAdjacentHTML('beforeend', tzPicker() + `<p class="note">AssignPad ${VERSION}</p>`);
+  view.querySelector('#tz').onchange = e => { store.set('tz', e.target.value); renderList(data); };
   renderAutoExt(data);
 }
 
@@ -176,7 +197,7 @@ async function showList(refresh = false) {
 }
 
 // ---------- Assignment ----------
-const VERSION = 'v14';  // keep equal to SHELL in sw.js
+const VERSION = 'v16';  // keep equal to SHELL in sw.js
 const draftKey = (dep, name) => `draft:${dep}:${name}`;
 let lastInput = 0;
 const MML = 'http://www.w3.org/1998/Math/MathML';
@@ -232,6 +253,7 @@ function qStyles(styles) {
         background: var(--card); color: var(--text); cursor: pointer; }
       input.ap-text { font: inherit; padding: 4px 8px; border-radius: 6px; border: 1px solid var(--line);
         background: var(--card); color: var(--text); }
+      .ap-graph { display: inline-block; padding: 6px 10px; border: 1px dashed var(--line); border-radius: 8px; color: var(--accent); text-decoration: none; }
       .ap-mark { font-weight: 700; } .ap-mark.correct { color: var(--ok); } .ap-mark.incorrect { color: var(--bad); }
       img { max-width: 100%; height: auto; }
       /* The app shows its own ✓/✗ next to each answer box. Hide WebAssign's marks. */
@@ -319,7 +341,15 @@ function buildQuestion(asg, q, practice = null) {
 
   const fields = {};
   for (const p of q.parts) {
-    if (p.kind === 'matrix') {
+    if (p.kind === 'graph') {
+      // WebAssign's graphing tool cannot run here: answer it on WebAssign.
+      const slot = root.querySelector(`.ap-box[data-name="${p.name}"]`);
+      if (slot) {
+        slot.insertAdjacentHTML('beforeend', `<a class="ap-graph" href="${esc(asg.url)}#${esc(q.box)}" target="_blank" rel="noopener">📈 Graph answer: open in WebAssign</a>`);
+        if (p.mark) slot.insertAdjacentHTML('beforeend', `<span class="ap-mark ${p.mark}" title="${p.mark}">${p.mark === 'correct' ? '✓' : '✗'}</span>`);
+      }
+      fields[p.name] = { part: p };
+    } else if (p.kind === 'matrix') {
       const slot = root.querySelector(`.ap-box[data-name="${p.name}"]`);
       if (!slot) continue;
       const m = matrixEditor(draft.get(p.name) ?? p.value, p.rows, p.cols, !p.enabled,
@@ -379,6 +409,10 @@ function buildQuestion(asg, q, practice = null) {
       });
       root.querySelectorAll(`[name="${p.name}"]`).forEach(i => i.addEventListener('change', () =>
         draft.set(p.name, readChoice(root, p))));
+      // WebAssign's own marks are hidden: show ✓/✗ after the last option (or the drop-down)
+      const els = root.querySelectorAll(`[name="${p.name}"]`), last = els[els.length - 1];
+      if (last && p.mark) (last.closest('label, .ms') || last).insertAdjacentHTML('afterend',
+        ` <span class="ap-mark ${p.mark}" title="${p.mark}">${p.mark === 'correct' ? '✓' : '✗'}</span>`);
     }
   }
 
@@ -485,7 +519,7 @@ function describeResult(q) {
 function renderAssignment(asg, focusBox) {
   const list = store.get('list');
   const meta = list?.assignments?.find(a => a.dep === asg.dep) || {};
-  setBar(asg.name || meta.name || 'Assignment', [meta.due, meta.score].filter(Boolean).join(' · '), true);
+  setBar(asg.name || meta.name || 'Assignment', [fmtDue(meta), meta.score].filter(Boolean).join(' · '), true);
   const scroll = window.scrollY;
   view.innerHTML = `<div class="hdr"><span>${asg.questions.length} questions</span>
     <span>Synced ${new Date(asg.synced * 1000).toLocaleTimeString()}</span></div>

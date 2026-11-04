@@ -13,7 +13,7 @@ from playwright.async_api import async_playwright
 import secrets
 from urllib.parse import urlencode
 
-from parse import parse_assignment, form_fields, BASE
+from parse import parse_assignment, parse_due, form_fields, hidden_fields, BASE
 
 log = logging.getLogger("wa")
 HOME = BASE + "/v4cgi/student.pl"
@@ -75,6 +75,7 @@ class WebAssign:
             user_agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 "
                        "(KHTML, like Gecko) Chrome/130.0.0.0 Safari/537.36",
             viewport={"width": 1300, "height": 900},
+            timezone_id="UTC",  # due dates without a zone name are UTC; the app shows them in your zone
         )
         # Skip heavy assets in headless pages. The answer form does not need them.
         await self.ctx.route(re.compile(r".*\.(png|jpe?g|gif|svg|woff2?|ttf|mp4)(\?.*)?$"),
@@ -199,6 +200,8 @@ class WebAssign:
             seen = {r["dep"] for r in rows}
             rows += [r for r in await self._read_links(page, "past") if r["dep"] not in seen]
         await self._save_cookies()
+        for r in rows:
+            r["dueTs"] = parse_due(r["due"])
         return {"course": course, "assignments": rows, "synced": time.time()}
 
     @staticmethod
@@ -316,7 +319,7 @@ class WebAssign:
 
     # ---------- practice ----------
     def _practice_result(self, pid, html, url):
-        self.practices[pid] = {"fields": form_fields(html), "t": time.time()}
+        self.practices[pid] = {"fields": form_fields(html), "hidden": hidden_fields(html), "t": time.time()}
         data = parse_assignment(html, url, ".waQBox")
         if not data["questions"]:
             raise RuntimeError("WebAssign did not show a practice question")
@@ -354,7 +357,10 @@ class WebAssign:
         if not p:
             raise KeyError("This practice version expired. Open a new one.")
         reset = {"subaction": "grade", "pos": "0", "keypos": "", "randpos": "", "solpos": ""}
-        pairs = [(k, v) for k, v in p["fields"] if k not in answers and k not in reset]
+        # Select-all checkboxes have a hidden input with the same name: keep it, as the browser does.
+        hidden = p.get("hidden", set())
+        pairs = [(k, v) for k, v in p["fields"]
+                 if k not in reset and (k not in answers or (isinstance(answers[k], list) and (k, v) in hidden))]
         for k, v in answers.items():
             pairs += [(k, x) for x in v] if isinstance(v, list) else [(k, v)]
         pairs += list(reset.items())
@@ -400,7 +406,9 @@ class WebAssign:
                 for name, value in answers.items():
                     step = f"fill {name}"
                     kind = await page.evaluate(
-                        "n => { const e = document.getElementsByName(n)[0]; return e ? (e.type || e.tagName) : null }",
+                        """n => { const all = [...document.getElementsByName(n)];
+                                  const e = all.find(x => x.type !== 'hidden') || all[0];
+                                  return e ? (e.type || e.tagName) : null }""",
                         name)
                     if kind is None:
                         raise ValueError(f"answer box {name} not found")
@@ -416,7 +424,8 @@ class WebAssign:
                         # WebAssign loads MooTools, which replaces window.Event, so `new Event()`
                         # crashes there. document.createEvent makes a native event.
                         await page.evaluate("""([n, v]) => {
-                            const e = document.getElementsByName(n)[0];
+                            const all = [...document.getElementsByName(n)];
+                            const e = all.find(x => x.type !== 'hidden') || all[0];
                             e.value = v;
                             // Matrix box: also redraw WebAssign's grid so its cells match the value.
                             if (document.getElementById('matrix_' + n) && window.matrix_draw && v) {

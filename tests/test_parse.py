@@ -69,3 +69,31 @@ def test_number_and_matrix_boxes():
     for name in parts:
         assert f'data-name="{name}"' in q["html"] or name.startswith("RC_")
     assert "matrix_input" not in q["html"] and "<input" not in q["html"].replace('type="radio"', "")
+
+
+def test_calcpad_select_all_dropdown_graph():
+    """RQ calcPad math, select-all checkboxes with a hidden twin, drop-down and graph boxes, marks by <name>_mark."""
+    from parse import hidden_fields
+    html = (ROOT / "tests/fixtures/types2.html").read_text(encoding="utf-8")
+    qs = parse_assignment(html, URL)["questions"]
+    rq = qs[0]["parts"][0]
+    assert (rq["name"], rq["kind"], rq["mark"], rq["enabled"]) == ("RQ_21_0_0_7", "math", "incorrect", True)
+    assert rq["value"].startswith("<math") and 'data-name="RQ_21_0_0_7"' in qs[0]["html"]
+    parts = {p["name"]: p for p in qs[1]["parts"]}
+    assert parts["RS_22_1_0_8"]["kind"] == "checkbox" and parts["RS_22_1_0_8"]["value"] == ["1"]
+    assert parts["RS_22_1_0_8"]["mark"] == "correct"
+    assert parts["RC_22_1_1_8"]["kind"] == "select" and parts["RC_22_1_1_8"]["value"] == "1"
+    assert parts["RC_22_1_1_8"]["mark"] == "incorrect"
+    assert 'type="hidden"' not in qs[1]["html"]
+    g = qs[2]["parts"][0]
+    assert (g["kind"], g["enabled"], g["mark"]) == ("graph", True, None)
+    assert 'data-name="RG_23_2_0_9"' in qs[2]["html"] and "graphpad_div" not in qs[2]["html"]
+    assert ("RS_22_1_0_8", "1") in hidden_fields(html)
+
+
+def test_parse_due():
+    from parse import parse_due
+    assert parse_due("Sunday, November 1, 2026 at 10:59 PM CST") == 1793595540
+    assert parse_due("Sun, Nov 1, 2026, 10:59 PM CST") == 1793595540
+    assert parse_due("Friday, October 23, 2026 at 12:12 AM CDT") == 1792732320
+    assert parse_due("Mon, Aug 24") is None

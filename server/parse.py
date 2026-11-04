@@ -1,5 +1,6 @@
 """Parse WebAssign assignment HTML into a clean structure for the AssignPad UI."""
 import re
+from datetime import datetime, timedelta, timezone
 from urllib.parse import urljoin, quote
 
 from bs4 import BeautifulSoup
@@ -7,6 +8,28 @@ from bs4 import BeautifulSoup
 BASE = "https://www.webassign.net"
 # Hidden inputs that hold session data. Never send these to the client.
 SECRET_INPUTS = {"sid", "UserPass", "user", "host", "usertype"}
+
+# US zone names WebAssign prints after due times, as UTC offsets in hours.
+_ZONES = {"UTC": 0, "GMT": 0, "EST": -5, "EDT": -4, "CST": -6, "CDT": -5, "MST": -7, "MDT": -6,
+          "PST": -8, "PDT": -7, "AKST": -9, "AKDT": -8, "HST": -10}
+_DUE = re.compile(r"([A-Z][a-z]{2,8})\.?\s+(\d{1,2}),?\s+(\d{4}),?\s+(?:at\s+)?(\d{1,2}):(\d{2})\s*([AP]M)"
+                  r"(?:\s+([A-Z]{2,4})\b)?")
+
+
+def parse_due(text: str):
+    """'Sunday, November 1, 2026 at 10:59 PM CST' -> Unix time. No zone name = UTC. None if no time."""
+    m = _DUE.search(text or "")
+    if not m:
+        return None
+    mon, day, year, hh, mm, ap, zone = m.groups()
+    try:
+        month = datetime.strptime(mon[:3], "%b").month
+    except ValueError:
+        return None
+    hour = int(hh) % 12 + (12 if ap == "PM" else 0)
+    off = _ZONES.get(zone or "UTC", 0)
+    return int(datetime(int(year), month, int(day), hour, int(mm),
+                        tzinfo=timezone(timedelta(hours=off))).timestamp())
 
 
 def proxy(url: str, page_url: str) -> str:
@@ -46,6 +69,20 @@ def _mark_near(el):
     return None
 
 
+def _mark_of(qbox, name, near):
+    """WebAssign's mark for an answer box: its "<name>_mark" span, else a mark near the box."""
+    m = qbox.find(id=f"{name}_mark")
+    if m is not None:
+        cls = " ".join(m.get("class", []))
+        if "mCorrect" in cls:
+            return "correct"
+        if "mIncorrect" in cls or "mWrong" in cls:
+            return "incorrect"
+        if "waMark" in cls:
+            return None
+    return _mark_near(near)
+
+
 def parse_question(qbox, page_url):
     qid_full = qbox.get("id", "")  # question5224578_0
     m = re.match(r"question(\d+)_(\d+)", qid_full)
@@ -54,16 +91,20 @@ def parse_question(qbox, page_url):
     content = qbox.select_one(".studentQuestionContent") or qbox
     parts = []
 
-    # Math answer boxes (MathType). Value is MathML in a hidden input.
-    for inp in content.select('input[name^="RA_"]'):
+    # Math answer boxes (MathType / calcPad): RA_, RQ_, ... Value is MathML in a hidden input.
+    for inp in content.select('input[name]'):
         name = inp["name"]
+        if not re.match(r"R[A-Z]_", name) or not (name.startswith("RA_") or qbox.find(id=f"editable-math-{name}")):
+            continue
+        if (inp.get("type") or "text").lower() not in ("hidden", "text") or any(p["name"] == name for p in parts):
+            continue
         settings = qbox.find(id=f"{name}_settings")
         part = {
             "name": name,
             "kind": "math",
             "value": inp.get("value", ""),
             "enabled": True,
-            "mark": _mark_near(inp),
+            "mark": _mark_of(qbox, name, inp),
             "pad": None,
         }
         en = qbox.find(id=f"enabled_{name}")
@@ -97,10 +138,20 @@ def parse_question(qbox, page_url):
         parts.append({
             "name": name, "kind": "matrix", "value": value, "rows": rows, "cols": cols,
             "enabled": not (div.select_one("input[disabled]") or (en is not None and en.get("value") == "0")),
-            "mark": _mark_near(inp), "pad": None,
+            "mark": _mark_of(qbox, name, inp), "pad": None,
         })
         holder = div.parent if div.parent and "qTextField" in div.parent.get("class", []) else div
         holder.replace_with(BeautifulSoup(f'<span class="ap-box" data-name="{name}"></span>', "html.parser").span)
+
+    # Graphing tool (RG_): drawn by WebAssign's own graph pad. Shown as a box to answer in WebAssign.
+    for div in content.select('div[id^="graphpad_div_"]'):
+        name = div["id"][len("graphpad_div_"):]
+        inp = qbox.find("input", attrs={"name": name})
+        mode = qbox.find(id=f"graphpad_mode_{name}")
+        parts.append({"name": name, "kind": "graph", "value": None,
+                      "enabled": not (mode is not None and mode.get("value") == "disabled"),
+                      "mark": _mark_of(qbox, name, inp or div), "pad": None})
+        div.replace_with(BeautifulSoup(f'<span class="ap-box" data-name="{name}"></span>', "html.parser").span)
 
     # Plain text answer boxes: numeric (RN_), short text, etc. WebAssign reads their value directly.
     for inp in content.select('input[name]'):
@@ -112,7 +163,7 @@ def parse_question(qbox, page_url):
         parts.append({
             "name": name, "kind": "text", "value": inp.get("value", ""),
             "enabled": not (inp.has_attr("disabled") or inp.has_attr("readonly") or (en is not None and en.get("value") == "0")),
-            "mark": _mark_near(inp), "pad": None,
+            "mark": _mark_of(qbox, name, inp), "pad": None,
         })
         inp.replace_with(BeautifulSoup(f'<span class="ap-box" data-name="{name}"></span>', "html.parser").span)
 
@@ -128,12 +179,12 @@ def parse_question(qbox, page_url):
             g["value"] = inp.get("value") if inp["type"] == "radio" else (g["value"] or []) + [inp.get("value")]
     for g in groups.values():
         last = content.select(f'input[name="{g["name"]}"]')[-1]
-        g["mark"] = _mark_near(last)
+        g["mark"] = _mark_of(qbox, g["name"], last)
         parts.append(g)
     for sel in content.select("select[name]"):
         opt = sel.find("option", selected=True)
         parts.append({"name": sel["name"], "kind": "select", "value": opt.get("value") if opt else None,
-                      "enabled": not sel.has_attr("disabled"), "mark": _mark_near(sel)})
+                      "enabled": not sel.has_attr("disabled"), "mark": _mark_of(qbox, sel["name"], sel)})
 
     # Clean the content HTML. MathJax output (live page) is removed; its source scripts stay.
     for t in content.select("button, textarea.latex-source, .mathtype-overlay-trigger, iframe, object, embed, "
@@ -203,6 +254,13 @@ def form_fields(html: str):
         elif typ not in ("submit", "button", "image", "reset", "file"):
             pairs.append((name, el.get("value", "")))
     return pairs
+
+
+def hidden_fields(html: str):
+    """(name, value) pairs of the form's hidden inputs."""
+    form = BeautifulSoup(html, "html.parser").find("form")
+    return {(el["name"], el.get("value", "")) for el in (form.find_all("input", type="hidden") if form else [])
+            if el.get("name")}
 
 
 def parse_assignment(html: str, page_url: str, selector: str = ".waQBox[id^=question]"):
