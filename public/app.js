@@ -197,10 +197,12 @@ async function showList(refresh = false) {
 }
 
 // ---------- Assignment ----------
-const VERSION = 'v16';  // keep equal to SHELL in sw.js
+const VERSION = 'v17';  // keep equal to SHELL in sw.js
 const draftKey = (dep, name) => `draft:${dep}:${name}`;
 let lastInput = 0;
 const MML = 'http://www.w3.org/1998/Math/MathML';
+
+const DASHES = /[−–‐]/g;  // minus sign, en dash, hyphen -> ASCII "-"
 
 function latexToMathml(latex) {
   const tpl = document.createElement('template');
@@ -214,7 +216,14 @@ function latexToMathml(latex) {
       const mi = document.createElementNS(MML, 'mi'); mi.textContent = o.textContent; o.replaceWith(mi);
     }
   });
-  return new XMLSerializer().serializeToString(m).replace(/ xmlns="http:\/\/www.w3.org\/1999\/xhtml"/g, '');
+  // WebAssign posts its form in a legacy charset: non-ASCII characters arrive as "?".
+  // MathType writes minus as ASCII "-" and other symbols as character references (&#x3C0;).
+  m.querySelectorAll('mo, mn, mi, mtext').forEach(o => {
+    const t = o.textContent.replace(DASHES, '-');
+    if (t !== o.textContent) o.textContent = t;
+  });
+  return new XMLSerializer().serializeToString(m).replace(/ xmlns="http:\/\/www.w3.org\/1999\/xhtml"/g, '')
+    .replace(/[^\x00-\x7F]/gu, c => `&#x${c.codePointAt(0).toString(16).toUpperCase()};`);
 }
 
 function qStyles(styles) {
@@ -432,7 +441,7 @@ function collectAnswers(root, fields) {
     if (f.part.kind === 'math') {
       const latex = f.el.value.trim();
       answers[name] = latex ? latexToMathml(latex) : '';
-    } else if (f.part.kind === 'text' || f.part.kind === 'matrix') answers[name] = f.el.value;
+    } else if (f.part.kind === 'text' || f.part.kind === 'matrix') answers[name] = f.el.value.replace(DASHES, '-');
     else { const v = readChoice(root, f.part); if (v != null) answers[name] = v; }
   }
   return answers;
