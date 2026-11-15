@@ -7,6 +7,8 @@ import re
 import time
 from pathlib import Path
 
+from wa import brief
+
 log = logging.getLogger("ext")
 MONTHS = {m: i + 1 for i, m in enumerate("jan feb mar apr may jun jul aug sep oct nov dec".split())}
 TZ = {"EST": -5, "EDT": -4, "CST": -6, "CDT": -5, "MST": -7, "MDT": -6, "PST": -8, "PDT": -7,
@@ -121,10 +123,10 @@ class Extensions:
                 await self.request(dep, auto=True)
                 log.info("auto extension %s: granted", dep)
             except ValueError as e:  # WebAssign will not give one: do not ask again
-                self.record(dep, False, str(e)[:300], True)
+                self.record(dep, False, brief(e), True)
                 log.warning("auto extension %s: %s", dep, e)
             except Exception as e:  # session or network: try again next check
-                self.record(dep, False, str(e)[:300], True, final=False)
+                self.record(dep, False, brief(e), True, final=False)
                 log.warning("auto extension %s: %s", dep, e)
 
     async def loop(self, get_list, every=600):

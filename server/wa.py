@@ -25,6 +25,12 @@ EXT_AUTO_URL = "/web/Rest/ExtensionRequest/automated_request?deploymentId={dep}"
 ALLOWED_HOSTS = ("webassign.net", "cengage.com", "cengage.io", "cengage.info", "cloudfront.net")
 
 
+def brief(e) -> str:
+    """First line of an error. Playwright adds a call log with request headers (session cookies)
+    after the first line: never show that to the client."""
+    return (str(e).splitlines() or [type(e).__name__])[0][:300]
+
+
 def host_allowed(url: str) -> bool:
     h = (urlparse(url).hostname or "").lower()
     return urlparse(url).scheme == "https" and any(h == a or h.endswith("." + a) for a in ALLOWED_HOSTS)
@@ -344,7 +350,14 @@ class WebAssign:
                 frame_el = page.locator('iframe[src*="practice.tpl"]')
                 await frame_el.wait_for(timeout=30000)
                 frame = await (await frame_el.element_handle()).content_frame()
-                await frame.wait_for_selector(".waQBox", timeout=30000)
+                try:
+                    await frame.wait_for_selector(".waQBox", timeout=45000)
+                except Exception:
+                    # Say what WebAssign shows instead, and keep a screenshot for debugging.
+                    await page.screenshot(path=str(self.data / "practice-error.png"), full_page=True)
+                    shown = " ".join((await frame.inner_text("body")).split())[:200] if not frame.is_detached() else ""
+                    raise RuntimeError("WebAssign did not show the practice question"
+                                       + (f". It shows: {shown}" if shown else "")) from None
                 html = await frame.content()
                 await self._save_cookies()
             finally:
@@ -365,7 +378,7 @@ class WebAssign:
             pairs += [(k, x) for x in v] if isinstance(v, list) else [(k, v)]
         pairs += list(reset.items())
         async with self.lock:
-            r = await self.ctx.request.post(PRACTICE_URL, data=urlencode(pairs), headers={
+            r = await self.ctx.request.post(PRACTICE_URL, data=urlencode(pairs), timeout=90000, headers={
                 "content-type": "application/x-www-form-urlencoded", "referer": PRACTICE_URL})
             html = await r.text()
         if not r.ok:
@@ -472,7 +485,7 @@ class WebAssign:
                 except Exception:
                     pass
                 # Playwright errors have a long call log after the first line.
-                msg = f"Submit failed at step '{step}': {str(e).splitlines()[0] if str(e) else type(e).__name__}"
+                msg = f"Submit failed at step '{step}': {brief(e)}"
                 if notes:
                     msg += " | " + " | ".join(notes[-3:])
                 log.warning(msg)

@@ -197,7 +197,7 @@ async function showList(refresh = false) {
 }
 
 // ---------- Assignment ----------
-const VERSION = 'v17';  // keep equal to SHELL in sw.js
+const VERSION = 'v19';  // keep equal to SHELL in sw.js
 const draftKey = (dep, name) => `draft:${dep}:${name}`;
 let lastInput = 0;
 const MML = 'http://www.w3.org/1998/Math/MathML';
@@ -208,18 +208,45 @@ function latexToMathml(latex) {
   const tpl = document.createElement('template');
   tpl.innerHTML = `<math xmlns="http://www.w3.org/1998/Math/MathML">${convertLatexToMathMl(latex)}</math>`;
   const m = tpl.content.firstElementChild;
-  // MathType does not send invisible operators. Remove them.
+  // MathType does not send invisible operators (function apply, times, separator, plus). Remove them.
   m.querySelectorAll('mo').forEach(o => {
-    if (/^[⁡⁢⁣]$/.test(o.textContent)) o.remove();
+    if (/^[⁡-⁤​]$/.test(o.textContent)) o.remove();
     // MathType writes function names (sin, ln, ...) as <mi>.
     else if (/^[a-z]{2,}$/i.test(o.textContent)) {
       const mi = document.createElementNS(MML, 'mi'); mi.textContent = o.textContent; o.replaceWith(mi);
     }
   });
+  // WebAssign reads "c1(1, 4)" as a function call, not a scalar times a vector. A list in
+  // parentheses right after a factor, or a matrix in parentheses, is a vector or matrix:
+  // write it with brackets, as MathType does.
+  m.querySelectorAll('mrow').forEach(g => {
+    const [open, body, close] = g.children;
+    if (g.children.length !== 3 || open.tagName !== 'mo' || open.textContent !== '(' || close.textContent !== ')') return;
+    const matrix = body.tagName === 'mtable';
+    if (!matrix && ![...body.children].some(c => c.tagName === 'mo' && c.textContent === ',')) return;
+    const prev = g.previousElementSibling;
+    if (matrix || (prev && ['mi', 'mn', 'msub', 'msup', 'mrow'].includes(prev.tagName))) {
+      open.textContent = '['; close.textContent = ']';
+    }
+  });
+  // WebAssign asks for column vectors "as a row vector", and some of its graders hang on
+  // column matrices. Write a one-column matrix as the list "a, b, c".
+  m.querySelectorAll('mtable').forEach(t => {
+    const rows = [...t.children];
+    if (!rows.length || rows.some(r => r.children.length !== 1)) return;
+    const list = document.createElementNS(MML, 'mrow');
+    rows.forEach((r, i) => {
+      if (i) { const c = document.createElementNS(MML, 'mo'); c.textContent = ','; list.append(c); }
+      list.append(...r.firstElementChild.childNodes);
+    });
+    t.replaceWith(list);
+  });
   // WebAssign posts its form in a legacy charset: non-ASCII characters arrive as "?".
   // MathType writes minus as ASCII "-" and other symbols as character references (&#x3C0;).
+  // WebAssign grades only symbols that MathType itself writes; map MathLive's other forms to them.
   m.querySelectorAll('mo, mn, mi, mtext').forEach(o => {
-    const t = o.textContent.replace(DASHES, '-');
+    const t = o.textContent.replace(DASHES, '-').replace(/[×∗·]/g, '⋅')
+      .replace(/ⅇ/g, 'e').replace(/ⅈ/g, 'i').replace(/ⅆ/g, 'd');
     if (t !== o.textContent) o.textContent = t;
   });
   return new XMLSerializer().serializeToString(m).replace(/ xmlns="http:\/\/www.w3.org\/1999\/xhtml"/g, '')

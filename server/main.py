@@ -17,7 +17,7 @@ from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 
 from extensions import Extensions
-from wa import WebAssign, host_allowed
+from wa import WebAssign, host_allowed, brief
 
 logging.basicConfig(level=logging.INFO)
 DATA = Path(os.environ.get("DATA_DIR", "/data"))
@@ -216,7 +216,7 @@ async def set_session(body: Session):
         ok = await wa.set_cookies(body.cookies)
     except Exception as e:
         logging.exception("set_cookies failed")
-        raise HTTPException(400, f"Could not use the cookies: {e}")
+        raise HTTPException(400, f"Could not use the cookies: {brief(e)}")
     return {"loggedIn": ok, "error": "" if ok else wa.last_error, "count": len(body.cookies)}
 
 
@@ -245,10 +245,10 @@ async def assignments(refresh: int = 0):
     try:
         return write_cache("_list", await asyncio.wait_for(wa.list_assignments(), 150))
     except PermissionError as e:
-        raise HTTPException(409, str(e))
+        raise HTTPException(409, brief(e))
     except Exception as e:
         logging.exception("list failed")
-        raise HTTPException(502, f"Could not read the assignment list: {e}")
+        raise HTTPException(502, f"Could not read the assignment list: {brief(e)}")
 
 
 @app.get("/api/assignments/{dep}")
@@ -261,10 +261,10 @@ async def assignment(dep: str, refresh: int = 0):
     try:
         return write_cache(dep, await asyncio.wait_for(wa.get_assignment(dep), 120))
     except PermissionError as e:
-        raise HTTPException(409, str(e))
+        raise HTTPException(409, brief(e))
     except Exception as e:
         logging.exception("assignment %s failed", dep)
-        raise HTTPException(502, f"Could not load the assignment: {e}")
+        raise HTTPException(502, f"Could not load the assignment: {brief(e)}")
 
 
 class ExtSettings(BaseModel):
@@ -306,7 +306,7 @@ async def extension_get(dep: str):
     try:
         out["info"] = await wa.extension_info(dep)
     except Exception as e:
-        out["info"], out["error"] = None, str(e)
+        out["info"], out["error"] = None, brief(e)
     return out
 
 
@@ -328,13 +328,13 @@ async def extension_request(dep: str):
     try:
         res = await ext.request(dep)
     except ValueError as e:
-        raise HTTPException(409, str(e))
+        raise HTTPException(409, brief(e))
     except PermissionError as e:
-        raise HTTPException(409, str(e))
+        raise HTTPException(409, brief(e))
     except Exception as e:
         logging.exception("extension %s failed", dep)
-        ext.record(dep, False, str(e)[:300], False)
-        raise HTTPException(502, str(e))
+        ext.record(dep, False, brief(e), False)
+        raise HTTPException(502, brief(e))
     try:
         write_cache("_list", await asyncio.wait_for(wa.list_assignments(), 150))  # new due date
     except Exception as e:
@@ -371,7 +371,7 @@ async def submit(dep: str, box: str, body: Submit):
         data = await wa.submit(dep, box, body.answers, body.action)
     except Exception as e:
         logging.exception("submit failed")
-        raise HTTPException(502, str(e))
+        raise HTTPException(502, brief(e))
     return write_cache(dep, data)
 
 
@@ -386,7 +386,7 @@ async def practice_start(dep: str, box: str):
         return await asyncio.wait_for(wa.practice_start(dep, int(m.group(1)) + 1), 90)
     except Exception as e:
         logging.exception("practice failed")
-        raise HTTPException(502, f"Could not open a practice version: {str(e).splitlines()[0] if str(e) else type(e).__name__}")
+        raise HTTPException(502, f"Could not open a practice version: {brief(e)}")
 
 
 class Practice(BaseModel):
@@ -404,7 +404,7 @@ async def practice_check(pid: str, body: Practice):
         raise HTTPException(410, str(e.args[0]))
     except Exception as e:
         logging.exception("practice check failed")
-        raise HTTPException(502, f"Check failed: {e}")
+        raise HTTPException(502, f"Check failed: {brief(e)}")
 
 
 @app.get("/api/submit-error.png")
